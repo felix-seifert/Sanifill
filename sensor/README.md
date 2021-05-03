@@ -21,10 +21,24 @@ can execute the following command:
 ./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensors --from-beginning --max-messages 10
 ```
 
+## Run Multiple Sensors Simultaneously
+
+To run several sensors simultaneously, each sensor needs an **own ID** and each sensor has to run on a **unique port**.
+
+### Custom Port
+
+Usually, each sensor application start on port `8080`. However, several applications cannot run on the same port. To 
+easily modify the port of each sensor, the port can be set via the Maven option `-Dquarkus.http.port=9090`. The 
+application can therefore be started in the development mode with:
+
+```shell script
+./mvnw quarkus:dev -Dquarkus.http.port=9090
+```
+
 ### Custom Sensor ID
 
-Generally, each sensor has a random UUID as its ID. However, it is also possible to set a custom ID via the command line 
-arguments. To set an ID, fill the first command line argument with the desired ID. For Quarkus, this is possible with 
+Generally, each sensor has a random UUID as its ID. However, it is also possible to set a custom ID via the command line
+arguments. To set an ID, fill the first command line argument with the desired ID. For Quarkus, this is possible with
 the Maven option `-Dquarkus.args=sensor-id`. The application can therefore be started in the development mode with:
 
 ```shell script
