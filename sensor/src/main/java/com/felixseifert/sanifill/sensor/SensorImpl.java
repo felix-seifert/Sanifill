@@ -17,13 +17,13 @@
 
 package com.felixseifert.sanifill.sensor;
 
-import io.quarkus.runtime.annotations.CommandLineArguments;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -36,9 +36,8 @@ public class SensorImpl implements Sensor {
 
     private String sensorId;
 
-    @Inject
-    @CommandLineArguments
-    String[] args;
+    @ConfigProperty(name = "sensor.id")
+    Optional<String> cmdSensorId;
 
     @PostConstruct
     public void postConstruct() {
@@ -48,11 +47,7 @@ public class SensorImpl implements Sensor {
     }
 
     private String createSensorId() {
-        if(args.length >= 1) {
-            // First arg is optional custom sensorId
-            return args[0];
-        }
-        return UUID.randomUUID().toString();
+        return cmdSensorId.orElse(UUID.randomUUID().toString());
     }
 
     @Override
