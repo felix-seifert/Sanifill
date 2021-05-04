@@ -62,12 +62,7 @@ public class SensorImpl implements Sensor {
 
     @Override
     public SensorData getCurrentData() {
-        SensorData sensorData = new SensorData(sensorId, LocalDateTime.now(), getCurrentFilling());
-        LOGGER.infov("Filling of sensor {0} at {1}: {2}",
-                sensorData.getSensorId(),
-                sensorData.getDateTime().toString(),
-                sensorData.getFilling());
-        return sensorData;
+        return new SensorData(sensorId, LocalDateTime.now(), getCurrentFilling());
     }
 
     private double getCurrentFilling() {
@@ -84,11 +79,6 @@ public class SensorImpl implements Sensor {
     @Override
     public SensorData resetData() {
         currentFilling = 1;
-        SensorData sensorData = getCurrentData();
-        LOGGER.infov("Reset filling of sensor {0} at {1} to {2}",
-                sensorData.getSensorId(),
-                sensorData.getDateTime(),
-                sensorData.getFilling());
-        return sensorData;
+        return getCurrentData();
     }
 }

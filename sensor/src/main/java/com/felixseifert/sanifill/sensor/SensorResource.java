@@ -19,6 +19,7 @@ package com.felixseifert.sanifill.sensor;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
+import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -33,6 +34,8 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class SensorResource {
 
+    private static final Logger LOGGER = Logger.getLogger(SensorResource.class);
+
     @Inject
     Sensor sensor;
 
@@ -44,6 +47,10 @@ public class SensorResource {
     @Path("/{id}")
     public Response resetSensorDevice() {
         SensorData sensorData = sensor.resetData();
+        LOGGER.infov("Reset filling of sensor {0} at {1} to {2}",
+                sensorData.getSensorId(),
+                sensorData.getDateTime(),
+                sensorData.getFilling());
         sensorDataEmitter.send(sensorData);
         return Response.status(Response.Status.OK).build();
     }

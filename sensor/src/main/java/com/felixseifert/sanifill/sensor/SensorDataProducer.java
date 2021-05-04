@@ -20,6 +20,7 @@ package com.felixseifert.sanifill.sensor;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.reactive.messaging.annotations.Broadcast;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,6 +28,8 @@ import java.time.Duration;
 
 @ApplicationScoped
 public class SensorDataProducer {
+
+    private static final Logger LOGGER = Logger.getLogger(SensorDataProducer.class);
 
     @Inject
     Sensor sensor;
@@ -37,6 +40,15 @@ public class SensorDataProducer {
         return Multi.createFrom()
                 .ticks().every(Duration.ofSeconds(20))
                 .onOverflow().drop()
-                .map(tick -> sensor.getCurrentData());
+                .map(this::publishSensorData);
+    }
+
+    private SensorData publishSensorData(Long tick) {
+        SensorData sensorData = sensor.getCurrentData();
+        LOGGER.infov("Filling of sensor {0} at {1}: {2}",
+                sensorData.getSensorId(),
+                sensorData.getDateTime().toString(),
+                sensorData.getFilling());
+        return sensorData;
     }
 }
