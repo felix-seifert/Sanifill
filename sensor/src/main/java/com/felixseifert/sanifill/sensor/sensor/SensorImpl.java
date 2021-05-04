@@ -21,13 +21,13 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Singleton;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-@ApplicationScoped
+@Singleton
 public class SensorImpl implements Sensor {
 
     private static final Logger LOGGER = Logger.getLogger(SensorImpl.class);
