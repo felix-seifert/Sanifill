@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.sensor;
+package com.felixseifert.sanifill.sensor.sensor;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,5 +30,5 @@ public class SensorData {
 
     private final LocalDateTime dateTime;
 
-    private final Double filling;
+    private final Double data;
 }

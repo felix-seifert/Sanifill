@@ -17,6 +17,8 @@
 
 package com.felixseifert.sanifill.sensor;
 
+import com.felixseifert.sanifill.sensor.sensor.Sensor;
+import com.felixseifert.sanifill.sensor.sensor.SensorData;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.reactive.messaging.annotations.Broadcast;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
@@ -48,7 +50,7 @@ public class SensorDataProducer {
         LOGGER.infov("Filling of sensor {0} at {1}: {2}",
                 sensorData.getSensorId(),
                 sensorData.getDateTime().toString(),
-                sensorData.getFilling());
+                sensorData.getData());
         return sensorData;
     }
 }
