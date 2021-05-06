@@ -47,10 +47,7 @@ public class SensorDataProducer {
 
     private SensorData publishSensorData(Long tick) {
         SensorData sensorData = sensor.getCurrentData();
-        LOGGER.infov("Filling of sensor {0} at {1}: {2}",
-                sensorData.getSensorId(),
-                sensorData.getDateTime().toString(),
-                sensorData.getData());
+        LOGGER.infov("Publish sensor data: {0}", sensorData);
         return sensorData;
     }
 }

@@ -32,12 +32,18 @@ public class SensorImpl implements Sensor {
 
     private static final Logger LOGGER = Logger.getLogger(SensorImpl.class);
 
-    private double currentFilling;
+    @ConfigProperty(name = "quarkus.http.host")
+    String sensorAddress;
 
-    private String sensorId;
+    @ConfigProperty(name = "quarkus.http.port")
+    int sensorPort;
 
     @ConfigProperty(name = "sensor.id")
     Optional<String> cmdSensorId;
+
+    private double currentFilling;
+
+    private String sensorId;
 
     @PostConstruct
     public void postConstruct() {
@@ -57,7 +63,7 @@ public class SensorImpl implements Sensor {
 
     @Override
     public SensorData getCurrentData() {
-        return new SensorData(sensorId, LocalDateTime.now(), getCurrentFilling());
+        return new SensorData(sensorId, sensorAddress, sensorPort, LocalDateTime.now(), getCurrentFilling());
     }
 
     private double getCurrentFilling() {

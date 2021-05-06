@@ -48,10 +48,7 @@ public class SensorResource {
     @POST
     public Response resetSensorDevice() {
         SensorData sensorData = sensor.resetData();
-        LOGGER.infov("Reset filling of sensor {0} at {1} to {2}",
-                sensorData.getSensorId(),
-                sensorData.getDateTime(),
-                sensorData.getData());
+        LOGGER.infov("Reset sensor: {0}", sensorData);
         sensorDataEmitter.send(sensorData);
         return Response.status(Response.Status.OK).build();
     }

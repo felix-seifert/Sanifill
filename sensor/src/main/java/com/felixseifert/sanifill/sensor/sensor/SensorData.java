@@ -19,14 +19,20 @@ package com.felixseifert.sanifill.sensor.sensor;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
+@ToString
 public class SensorData {
 
     private final String sensorId;
+
+    private final String sensorAddress;
+
+    private final Integer sensorPort;
 
     private final LocalDateTime dateTime;
 
