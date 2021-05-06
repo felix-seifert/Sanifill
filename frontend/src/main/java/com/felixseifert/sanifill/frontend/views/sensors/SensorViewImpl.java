@@ -23,13 +23,14 @@ import com.felixseifert.sanifill.frontend.views.main.MainView;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.spring.annotation.SpringComponent;
 import com.vaadin.flow.spring.annotation.UIScope;
+
+import java.util.Map;
 
 @Route(value = "sensors", layout = MainView.class)
 @RouteAlias(value = "", layout = MainView.class)
@@ -38,7 +39,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 @SpringComponent
 @UIScope
 @PreserveOnRefresh
-public class SensorViewImpl extends Div implements SensorView {
+public class SensorViewImpl extends SensorView {
 
     private final SensorService sensorService;
 
@@ -54,16 +55,22 @@ public class SensorViewImpl extends Div implements SensorView {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        getUI().ifPresent(ui -> sensorService.getSensorViews().put(ui, this));
+        sensorService.register(this);
+        updateSensorData(sensorService.getSensorsAndTheirCurrentValue());
     }
 
     @Override
     protected void onDetach(DetachEvent detachEvent) {
-        getUI().ifPresent(ui -> sensorService.getSensorViews().remove(ui));
+        sensorService.unregister(this);
     }
 
     @Override
-    public void addNewSensorDataToGrid(SensorData sensorData) {
-        grid.addItem(sensorData);
+    public void updateSensorData(SensorData sensorData) {
+        grid.addOrUpdateItem(sensorData);
+    }
+
+    @Override
+    public void updateSensorData(Map<String, SensorData> sensorDataMap) {
+        sensorDataMap.values().forEach(grid::addOrUpdateItem);
     }
 }

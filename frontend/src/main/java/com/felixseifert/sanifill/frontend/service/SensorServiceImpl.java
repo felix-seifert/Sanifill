@@ -32,10 +32,25 @@ public class SensorServiceImpl implements SensorService {
     @Getter
     private final Map<UI, SensorView> sensorViews = new HashMap<>();
 
+    @Getter
+    private final Map<String, SensorData> sensorsAndTheirCurrentValue = new HashMap<>();
+
     @Override
     public void sendSensorDataToUis(SensorData sensorData) {
         sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).addNewSensorDataToGrid(sensorData)));
         // TODO: Add new sensor data OR update sensor data for existing sensors
         // TODO: Get current sensor data from memory if new page access (do not wait for sensor updates)
+        sensorsAndTheirCurrentValue.put(sensorData.getSensorId(), sensorData);
+        sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).updateSensorData(sensorData)));
+    }
+
+    @Override
+    public void register(SensorView sensorView) {
+        sensorView.getUI().ifPresent(ui -> sensorViews.put(ui, sensorView));
+    }
+
+    @Override
+    public void unregister(SensorView sensorView) {
+        sensorView.getUI().ifPresent(sensorViews::remove);
     }
 }

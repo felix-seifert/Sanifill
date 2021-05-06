@@ -21,22 +21,22 @@ import com.felixseifert.sanifill.frontend.model.SensorData;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SensorDataGrid extends Grid<SensorData> {
 
-    private final List<SensorData> sensorDataList = new ArrayList<>();
+    private final Map<String, SensorData> sensorsAndTheirCurrentValue = new HashMap<>();
 
     public SensorDataGrid() {
         this.setHeight("100%");
         this.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
         this.addComponentColumn(SensorDataLayout::new);
-        this.setItems(sensorDataList);
+        this.setItems(sensorsAndTheirCurrentValue.values());
     }
 
-    public void addItem(SensorData sensorData) {
-        sensorDataList.add(sensorData);
+    public void addOrUpdateItem(SensorData sensorData) {
+        sensorsAndTheirCurrentValue.put(sensorData.getSensorId(), sensorData);
         this.getDataProvider().refreshAll();
     }
 }

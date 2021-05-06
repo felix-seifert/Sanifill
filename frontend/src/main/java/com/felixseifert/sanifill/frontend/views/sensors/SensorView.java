@@ -18,8 +18,13 @@
 package com.felixseifert.sanifill.frontend.views.sensors;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.vaadin.flow.component.html.Div;
 
-public interface SensorView {
+import java.util.Map;
 
-    void addNewSensorDataToGrid(SensorData sensorData);
+public abstract class SensorView extends Div {
+
+    public abstract void updateSensorData(SensorData sensorData);
+
+    public abstract void updateSensorData(Map<String, SensorData> sensorDataMap);
 }
