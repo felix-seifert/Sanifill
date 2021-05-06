@@ -21,7 +21,6 @@ import com.felixseifert.sanifill.frontend.model.SensorData;
 import com.felixseifert.sanifill.frontend.service.SensorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -30,13 +29,16 @@ public class KafkaSensorsListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSensorsListener.class);
 
-    @Autowired
-    private SensorService sensorService;
+    private final SensorService sensorService;
+
+    public KafkaSensorsListener(SensorService sensorService) {
+        this.sensorService = sensorService;
+    }
 
     @KafkaListener(topics = "sensors", groupId = "sanifill-sensors",
             containerFactory = "kafkaListenerContainerFactory")
     public void listenToSensorsTopic(SensorData sensorData) {
         LOGGER.info("Received sensorData: {}", sensorData);
-        sensorService.sendSensorDataToGui(sensorData);
+        sensorService.sendSensorDataToUis(sensorData);
     }
 }

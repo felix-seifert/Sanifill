@@ -18,7 +18,7 @@
 package com.felixseifert.sanifill.frontend.views.main;
 
 import com.felixseifert.sanifill.frontend.views.about.AboutView;
-import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
+import com.felixseifert.sanifill.frontend.views.sensors.SensorViewImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -30,6 +30,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
@@ -43,6 +44,7 @@ import java.util.Optional;
  */
 @JsModule("./styles/shared-styles.js")
 @CssImport("./views/main/main-view.css")
+@Push
 public class MainView extends AppLayout {
 
     private final Tabs menu;
@@ -108,7 +110,9 @@ public class MainView extends AppLayout {
     }
 
     private Component[] createMenuItems() {
-        return new Tab[]{createTab("Sensors", SensorView.class), createTab("About", AboutView.class)};
+        return new Tab[]{
+                createTab("Sensors", SensorViewImpl.class),
+                createTab("About", AboutView.class)};
     }
 
     private static Tab createTab(String text, Class<? extends Component> navigationTarget) {

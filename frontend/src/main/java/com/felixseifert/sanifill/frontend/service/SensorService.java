@@ -18,8 +18,14 @@
 package com.felixseifert.sanifill.frontend.service;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
+import com.vaadin.flow.component.UI;
+
+import java.util.Map;
 
 public interface SensorService {
 
-    void sendSensorDataToGui(SensorData sensorData);
+    Map<UI, SensorView> getSensorViews();
+
+    void sendSensorDataToUis(SensorData sensorData);
 }

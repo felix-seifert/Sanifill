@@ -18,8 +18,25 @@
 package com.felixseifert.sanifill.frontend.views.sensors;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 
-public interface SensorView {
+import java.util.ArrayList;
+import java.util.List;
 
-    void addNewSensorDataToGrid(SensorData sensorData);
+public class SensorDataGrid extends Grid<SensorData> {
+
+    private final List<SensorData> sensorDataList = new ArrayList<>();
+
+    public SensorDataGrid() {
+        this.setHeight("100%");
+        this.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
+        this.addComponentColumn(SensorDataLayout::new);
+        this.setItems(sensorDataList);
+    }
+
+    public void addItem(SensorData sensorData) {
+        sensorDataList.add(sensorData);
+        this.getDataProvider().refreshAll();
+    }
 }

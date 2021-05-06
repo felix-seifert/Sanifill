@@ -18,13 +18,24 @@
 package com.felixseifert.sanifill.frontend.service;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
+import com.vaadin.flow.component.UI;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class SensorServiceImpl implements SensorService {
 
+    @Getter
+    private final Map<UI, SensorView> sensorViews = new HashMap<>();
+
     @Override
-    public void sendSensorDataToGui(SensorData sensorData) {
-        // TODO: Send sensorData to UI with ui.access()
+    public void sendSensorDataToUis(SensorData sensorData) {
+        sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).addNewSensorDataToGrid(sensorData)));
+        // TODO: Add new sensor data OR update sensor data for existing sensors
+        // TODO: Get current sensor data from memory if new page access (do not wait for sensor updates)
     }
 }
