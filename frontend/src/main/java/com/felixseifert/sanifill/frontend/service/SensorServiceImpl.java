@@ -21,7 +21,10 @@ import com.felixseifert.sanifill.frontend.model.SensorData;
 import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
 import com.vaadin.flow.component.UI;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +32,8 @@ import java.util.Map;
 @Service
 public class SensorServiceImpl implements SensorService {
 
-    @Getter
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensorServiceImpl.class);
+
     private final Map<UI, SensorView> sensorViews = new HashMap<>();
 
     @Getter
@@ -37,11 +41,20 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public void sendSensorDataToUis(SensorData sensorData) {
-        sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).addNewSensorDataToGrid(sensorData)));
-        // TODO: Add new sensor data OR update sensor data for existing sensors
-        // TODO: Get current sensor data from memory if new page access (do not wait for sensor updates)
         sensorsAndTheirCurrentValue.put(sensorData.getSensorId(), sensorData);
         sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).updateSensorData(sensorData)));
+    }
+
+    @Override
+    public void triggerSensorReset(SensorData sensorData) {
+        WebClient.create()
+                .post()
+                .uri("http://" + sensorData.getSensorAddress() + ":" + sensorData.getSensorPort() + "/api/v1/sensor")
+                .retrieve()
+                .toEntity(Object.class)
+                .subscribe(result -> LOGGER.info("Sensors {} reset at {}",
+                        sensorData.getSensorId(),
+                        sensorData.getDateTime()));
     }
 
     @Override

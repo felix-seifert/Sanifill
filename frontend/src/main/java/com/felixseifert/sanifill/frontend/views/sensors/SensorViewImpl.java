@@ -43,10 +43,11 @@ public class SensorViewImpl extends SensorView {
 
     private final SensorService sensorService;
 
-    private final SensorDataGrid grid = new SensorDataGrid();
+    private final SensorDataGrid grid;
 
     public SensorViewImpl(SensorService sensorService) {
         this.sensorService = sensorService;
+        this.grid = new SensorDataGrid(sensorService);
 
         addClassName("sensors-view");
         setSizeFull();

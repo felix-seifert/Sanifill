@@ -28,6 +28,8 @@ public interface SensorService {
 
     void sendSensorDataToUis(SensorData sensorData);
 
+    void triggerSensorReset(SensorData sensorData);
+
     void register(SensorView sensorView);
 
     void unregister(SensorView sensorView);

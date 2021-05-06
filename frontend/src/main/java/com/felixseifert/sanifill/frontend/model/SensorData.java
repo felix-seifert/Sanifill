@@ -26,6 +26,10 @@ public class SensorData {
 
     private String sensorId;
 
+    private String sensorAddress;
+
+    private Integer sensorPort;
+
     private LocalDateTime dateTime;
 
     private Double data;

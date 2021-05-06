@@ -18,6 +18,7 @@
 package com.felixseifert.sanifill.frontend.views.sensors;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.service.SensorService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 
@@ -28,10 +29,10 @@ public class SensorDataGrid extends Grid<SensorData> {
 
     private final Map<String, SensorData> sensorsAndTheirCurrentValue = new HashMap<>();
 
-    public SensorDataGrid() {
+    public SensorDataGrid(SensorService sensorService) {
         this.setHeight("100%");
         this.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        this.addComponentColumn(SensorDataLayout::new);
+        this.addComponentColumn(sensorData -> new SensorDataLayout(sensorData, sensorService));
         this.setItems(sensorsAndTheirCurrentValue.values());
     }
 

@@ -18,6 +18,7 @@
 package com.felixseifert.sanifill.frontend.views.sensors;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.service.SensorService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -27,7 +28,10 @@ import com.vaadin.flow.component.progressbar.ProgressBar;
 
 public class SensorDataLayout extends VerticalLayout {
 
-    public SensorDataLayout(SensorData sensorData) {
+    private final SensorService sensorService;
+
+    public SensorDataLayout(SensorData sensorData, SensorService sensorService) {
+        this.sensorService = sensorService;
         this.add(createHeader(sensorData),
                 createProgressBarWithRefillButton(sensorData));
     }
@@ -54,12 +58,15 @@ public class SensorDataLayout extends VerticalLayout {
         progressBar.setWidthFull();
 
         Button refillButton = new Button("Refill");
-        // TODO: Add clickListener to button to call REST API of sensor to refill
-        //  (address/port of sensor should be included in Kafka message)
+        refillButton.addClickListener(e -> triggerRefillOfSensor(sensorData));
 
         HorizontalLayout layout = new HorizontalLayout(progressBar, refillButton);
         layout.setWidthFull();
 
         return layout;
+    }
+
+    private void triggerRefillOfSensor(SensorData sensorData) {
+         sensorService.triggerSensorReset(sensorData);
     }
 }
