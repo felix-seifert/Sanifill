@@ -3,6 +3,15 @@
 This project simulates a sensor which measures the filling of a container. The sensor simulation is built with Quarkus 
 and published information about the measured filling to a Kafka topic.
 
+## Run
+
+To run a sensor in Quarkus development mode without the need to separate build and run, you can use the Quarkus plugin 
+via the Maven wrapper.
+
+```shell script
+./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>
+```
+
 ## Kafka Topic and Sent Information
 
 The measured information is regularly published to the Kafka topic `sensors`. Each message which a sensor published 
@@ -43,7 +52,7 @@ property `sensor.id=<sensor-id>`. This is also possible during startup with Mave
 therefore be started in the development mode with:
 
 ```shell script
-./mvnw quarkus:dev -Dquarkus.args=<sensor-id>
+./mvnw quarkus:dev -Dsensor.id=<sensor-id>
 ```
 
 [comment]: <> (## Running the application in dev mode)
