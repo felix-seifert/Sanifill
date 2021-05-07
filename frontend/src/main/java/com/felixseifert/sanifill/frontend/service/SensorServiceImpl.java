@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,12 +50,17 @@ public class SensorServiceImpl implements SensorService {
     public void triggerSensorReset(SensorData sensorData) {
         WebClient.create()
                 .post()
-                .uri("http://" + sensorData.getSensorAddress() + ":" + sensorData.getSensorPort() + "/api/v1/sensor")
+                .uri(uriBuilder -> uriBuilder
+                        .scheme("http")
+                        .host(sensorData.getSensorAddress())
+                        .port(sensorData.getSensorPort())
+                        .path("/api/v1/sensor").build()) // HTTP only because local
                 .retrieve()
                 .toEntity(Object.class)
-                .subscribe(result -> LOGGER.info("Sensors {} reset at {}",
+                .subscribe(result -> LOGGER.info("Sensor {} reset at {}",
                         sensorData.getSensorId(),
-                        sensorData.getDateTime()));
+                        LocalDateTime.now()));
+        // TODO: Consider to show notification in frontend about successful refill
     }
 
     @Override
