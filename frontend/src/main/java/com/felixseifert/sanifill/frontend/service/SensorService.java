@@ -15,26 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.sensor.sensor;
+package com.felixseifert.sanifill.frontend.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
-@Getter
-@AllArgsConstructor
-@ToString
-public class SensorData {
+public interface SensorService {
 
-    private final String sensorId;
+    Map<String, SensorData> getSensorsAndTheirCurrentValue();
 
-    private final String sensorAddress;
+    void sendSensorDataToUis(SensorData sensorData);
 
-    private final Integer sensorPort;
+    void triggerSensorReset(SensorData sensorData);
 
-    private final LocalDateTime dateTime;
+    void register(SensorView sensorView);
 
-    private final Double data;
+    void unregister(SensorView sensorView);
 }

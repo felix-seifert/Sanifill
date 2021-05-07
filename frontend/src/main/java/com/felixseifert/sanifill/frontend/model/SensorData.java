@@ -15,26 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.sensor.sensor;
+package com.felixseifert.sanifill.frontend.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@AllArgsConstructor
-@ToString
+@Data
 public class SensorData {
 
-    private final String sensorId;
+    private String sensorId;
 
-    private final String sensorAddress;
+    private String sensorAddress;
 
-    private final Integer sensorPort;
+    private Integer sensorPort;
 
-    private final LocalDateTime dateTime;
+    private LocalDateTime dateTime;
 
-    private final Double data;
+    private Double data;
 }

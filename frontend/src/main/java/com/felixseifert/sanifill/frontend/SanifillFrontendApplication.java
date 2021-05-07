@@ -15,26 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.sensor.sensor;
+package com.felixseifert.sanifill.frontend;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.vaadin.artur.helpers.LaunchUtil;
 
-import java.time.LocalDateTime;
+@SpringBootApplication
+public class SanifillFrontendApplication extends SpringBootServletInitializer {
 
-@Getter
-@AllArgsConstructor
-@ToString
-public class SensorData {
-
-    private final String sensorId;
-
-    private final String sensorAddress;
-
-    private final Integer sensorPort;
-
-    private final LocalDateTime dateTime;
-
-    private final Double data;
+    public static void main(String[] args) {
+        LaunchUtil.launchBrowserInDevelopmentMode(SpringApplication.run(SanifillFrontendApplication.class, args));
+    }
 }

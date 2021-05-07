@@ -15,26 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.sensor.sensor;
+package com.felixseifert.sanifill.frontend.views.sensors;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.vaadin.flow.component.html.Div;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
-@Getter
-@AllArgsConstructor
-@ToString
-public class SensorData {
+public abstract class SensorView extends Div {
 
-    private final String sensorId;
+    public abstract void updateSensorData(SensorData sensorData);
 
-    private final String sensorAddress;
-
-    private final Integer sensorPort;
-
-    private final LocalDateTime dateTime;
-
-    private final Double data;
+    public abstract void updateSensorData(Map<String, SensorData> sensorDataMap);
 }
