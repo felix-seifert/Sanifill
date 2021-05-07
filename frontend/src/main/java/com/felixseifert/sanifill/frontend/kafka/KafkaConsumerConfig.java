@@ -40,14 +40,10 @@ public class KafkaConsumerConfig {
     @Value("${sanifill.kafka.bootstrapAddress}")
     private String bootstrapAddress;
 
-    @Value("${sanifill.kafka.groupId}")
-    private String groupId;
-
     @Bean
     public ConsumerFactory<String, SensorData> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);

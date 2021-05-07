@@ -35,8 +35,7 @@ public class KafkaSensorsListener {
         this.sensorService = sensorService;
     }
 
-    @KafkaListener(topics = "sensors", groupId = "sanifill-sensors",
-            containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(id = "frontend-listener", topics = "sensors")
     public void listenToSensorsTopic(SensorData sensorData) {
         LOGGER.info("Received sensorData: {}", sensorData);
         sensorService.sendSensorDataToUis(sensorData);
