@@ -1,7 +1,7 @@
 # Sensor Simulation
 
-This project simulates a sensor which measures the filling of a container. The sensor simulation is built with Quarkus 
-and published information about the measured filling to a Kafka topic.
+This service simulates a sensor which measures the filling of a container. The sensor simulation is built with Quarkus 
+and publishes information about the measured filling to a Kafka topic.
 
 ## Run
 
@@ -23,7 +23,7 @@ includes a `sensorId` of the sensor which published the message, a `dateTime` of
 To see the published messages, you can locate the file `kafka-console-consumer.sh`, go to its folder and execute 
 `./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensors --from-beginning --max-messages 10`. In 
 our example of running Kafka via the provided [`docker-compose.yml`](../infrastructure/docker-compose.yml), you have to 
-`exec` into the started Kafa container with `docker-compose exec kafka bach`. After starting a sensor simulation, you 
+`exec` into the started Kafa container with `docker-compose exec kafka bash`. After starting a sensor simulation, you 
 can execute the following command:
 
 ```shell script
