@@ -20,11 +20,14 @@ package com.felixseifert.sanifill.frontend.views.sensors;
 import com.felixseifert.sanifill.frontend.model.SensorData;
 import com.felixseifert.sanifill.frontend.service.SensorService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.progressbar.ProgressBarVariant;
 
 public class SensorDataLayout extends VerticalLayout {
 
@@ -33,7 +36,7 @@ public class SensorDataLayout extends VerticalLayout {
     public SensorDataLayout(SensorData sensorData, SensorService sensorService) {
         this.sensorService = sensorService;
         this.add(createHeader(sensorData),
-                createProgressBarWithRefillButton(sensorData));
+                createProgressBarAndRefillButton(sensorData));
     }
 
     private HorizontalLayout createHeader(SensorData sensorData) {
@@ -48,22 +51,67 @@ public class SensorDataLayout extends VerticalLayout {
         return layout;
     }
 
-    private HorizontalLayout createProgressBarWithRefillButton(SensorData sensorData) {
-        double min = 0.0, max = 1.0;
-        ProgressBar progressBar = new ProgressBar(min, max);
-        progressBar.setValue(sensorData.getData());
-        // TODO: .addThemeVariants(ProgressBarVariant.LUMO_ERROR) if filling below 20 %
-        //  (LUMO_SUCCESS for fresh filling of 90 % and above)
-        // TODO: Consider to show value of filling
-        progressBar.setWidthFull();
-
-        Button refillButton = new Button("Refill");
-        refillButton.addClickListener(e -> triggerRefillOfSensor(sensorData));
+    private HorizontalLayout createProgressBarAndRefillButton(SensorData sensorData) {
+        Div progressBar = createProgressBarWithLabel(sensorData);
+        Button refillButton = createRefillButton(sensorData);
 
         HorizontalLayout layout = new HorizontalLayout(progressBar, refillButton);
         layout.setWidthFull();
+        layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
         return layout;
+    }
+
+    private Button createRefillButton(SensorData sensorData) {
+        Button refillButton = new Button("Refill");
+        refillButton.addClickListener(e -> triggerRefillOfSensor(sensorData));
+        return refillButton;
+    }
+
+    private Div createProgressBarWithLabel(SensorData sensorData) {
+        FlexLayout label = createLabel(sensorData);
+        ProgressBar progressBar = createProgressBar(sensorData);
+
+        Div layout = new Div(label, progressBar);
+        layout.setWidthFull();
+
+        return layout;
+    }
+
+    private FlexLayout createLabel(SensorData sensorData) {
+        Div labelText = new Div();
+        labelText.setText("Current Filling");
+
+        Div labelValue = new Div();
+        labelValue.setText(transformToPercentage(sensorData.getData()) + " %");
+
+        FlexLayout label = new FlexLayout(labelText, labelValue);
+        label.setJustifyContentMode(JustifyContentMode.BETWEEN);
+
+        return label;
+    }
+
+    private ProgressBar createProgressBar(SensorData sensorData) {
+        double min = 0.0, max = 1.0;
+        ProgressBar progressBar = new ProgressBar(min, max);
+        progressBar.setValue(sensorData.getData());
+        progressBar.addThemeVariants(getAppropriateProgressBarTheme(sensorData));
+        progressBar.setWidthFull();
+        return progressBar;
+    }
+
+    private ProgressBarVariant getAppropriateProgressBarTheme(SensorData sensorData) {
+        if(sensorData.getData() >= 0.9) {
+            return ProgressBarVariant.LUMO_SUCCESS;
+        }
+        if(sensorData.getData() < 0.2) {
+            return ProgressBarVariant.LUMO_ERROR;
+        }
+        return ProgressBarVariant.LUMO_CONTRAST;
+    }
+
+    private int transformToPercentage(double decimalNumber) {
+        return (int) Math.round(100 * decimalNumber);
     }
 
     private void triggerRefillOfSensor(SensorData sensorData) {
