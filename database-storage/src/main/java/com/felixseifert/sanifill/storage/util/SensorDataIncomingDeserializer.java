@@ -15,8 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.storage.model;
+package com.felixseifert.sanifill.storage.util;
 
+import com.felixseifert.sanifill.storage.model.SensorDataIncoming;
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 
 public class SensorDataIncomingDeserializer extends ObjectMapperDeserializer<SensorDataIncoming> {
