@@ -17,18 +17,24 @@ For the system to function, one have to start a message broker and other infrast
 others Kafka and database). This can be achieved by spinning up the Docker containers in 
 [`docker-compose.yml`](infrastructure/docker-compose.yml) with a simple `docker-compose up`.
 
-To simulate some physical sensor which publish their data to Kafka, start sensors in the folder [sensor](sensor) with 
-`./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>`.
+To simulate some physical sensors which publish their data to Kafka, start any desired number of sensors in the folder 
+[sensor](sensor) with `./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>`.
 
-You can then use the Vaadin frontend to consume the sensor data from Kafka. Just start the [Sanifill frontend](frontend) 
-with `mvn spring-boot:run -Pproduction` and open `http://localhost:8080/` to see the frontend programme.
+You can then use the Vaadin frontend to consume the sensor data from Kafka and display analytics performed on the data. 
+Just start the [Sanifill frontend](frontend) by navigating to its folder and executing the command 
+`mvn spring-boot:run -Pproduction`. Open `http://localhost:8080/` to see the frontend programme.
+
+Further analytics can be performed on the sensor data. This often required the history of more or all the sensor data. 
+The service [database-storage](database-storage) consumes the Kafka messages to store them in a relational database. 
+Start the service by navigating to its folder and executing the command `./mvnw quarkus:dev -Dquarkus.http.port=<port>`.
 
 ## Used Technology
 
-* Quarkus to build sensor simulations
-* Docker to run required infrastructure and simplify running of built applications
+* Quarkus to build sensor simulations and backend services
 * Kafka (with Zookeeper) as message broker between sensors and other components
+* PostgreSQL as relational database to persist sensors' data
 * Spring Boot and Vaadin to build frontend which consumes other services via Kafka and REST API
+* Docker to run required infrastructure and simplify running of built applications
 
 ## Copyright and License
 
