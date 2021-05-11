@@ -11,6 +11,13 @@ provides while the end-user of the sanitary facilities does not directly realise
 system's sensors. As these sensors sense their environment, the filling of their monitored liquidity container, the 
 system is context-aware and, as opposed to sampling methods, listens to events.
 
+## Architecture
+
+The architecture for a local setup is shown in the following image. The information on how to start the system can be 
+found in the section [Run](#run).
+
+![Architecture](architecture/architecture.png)
+
 ## Run
 
 For the system to function, one have to start a message broker and other infrastructure which the system needs (amongst 
