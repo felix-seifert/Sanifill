@@ -17,7 +17,7 @@
 
 package com.felixseifert.sanifill.frontend.views.sensors;
 
-import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
 import com.felixseifert.sanifill.frontend.service.SensorService;
 import com.felixseifert.sanifill.frontend.views.main.MainView;
 import com.vaadin.flow.component.AttachEvent;
@@ -57,7 +57,7 @@ public class SensorViewImpl extends SensorView {
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         sensorService.register(this);
-        updateSensorData(sensorService.getSensorsAndTheirCurrentValue());
+        updateSensorData(sensorService.getCurrentSensorData());
     }
 
     @Override
@@ -66,12 +66,12 @@ public class SensorViewImpl extends SensorView {
     }
 
     @Override
-    public void updateSensorData(SensorData sensorData) {
-        grid.addOrUpdateItem(sensorData);
+    public void updateSensorData(SensorDataEnriched sensorDataEnriched) {
+        grid.addOrUpdateItem(sensorDataEnriched);
     }
 
     @Override
-    public void updateSensorData(Map<String, SensorData> sensorDataMap) {
+    public synchronized void updateSensorData(Map<String, SensorDataEnriched> sensorDataMap) {
         sensorDataMap.values().forEach(grid::addOrUpdateItem);
     }
 }

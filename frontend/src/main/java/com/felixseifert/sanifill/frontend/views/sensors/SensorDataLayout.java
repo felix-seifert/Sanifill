@@ -17,8 +17,9 @@
 
 package com.felixseifert.sanifill.frontend.views.sensors;
 
-import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
 import com.felixseifert.sanifill.frontend.service.SensorService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
@@ -28,21 +29,29 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
+import com.vaadin.flow.component.textfield.TextField;
+
+import java.time.format.DateTimeFormatter;
 
 public class SensorDataLayout extends VerticalLayout {
 
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
     private final SensorService sensorService;
 
-    public SensorDataLayout(SensorData sensorData, SensorService sensorService) {
+    public SensorDataLayout(SensorDataEnriched data, SensorService sensorService) {
         this.sensorService = sensorService;
-        this.add(createHeader(sensorData),
-                createProgressBarAndRefillButton(sensorData));
+
+        addClassName("sensor-data-layout");
+        add(createHeader(data),
+                createProgressBarHorizontalLine(data));
     }
 
-    private HorizontalLayout createHeader(SensorData sensorData) {
-        H3 id = new H3(sensorData.getSensorId());
+    private HorizontalLayout createHeader(SensorDataEnriched data) {
+        H3 id = new H3(data.getSensorId());
         id.setWidthFull();
-        Span dateTime = new Span(sensorData.getDateTime().toString());
+        Span dateTime = new Span("Last update: " + data.getDateTime().format(dateTimeFormatter));
+        dateTime.addClassName("update-date-time");
 
         HorizontalLayout layout = new HorizontalLayout(id, dateTime);
         layout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
@@ -51,26 +60,38 @@ public class SensorDataLayout extends VerticalLayout {
         return layout;
     }
 
-    private HorizontalLayout createProgressBarAndRefillButton(SensorData sensorData) {
-        Div progressBar = createProgressBarWithLabel(sensorData);
-        Button refillButton = createRefillButton(sensorData);
+    private HorizontalLayout createProgressBarHorizontalLine(SensorDataEnriched data) {
+        Div progressBar = createProgressBarWithLabel(data);
+        Component expectedDepletionField = createDepletionField(data);
+        Button refillButton = createRefillButton(data);
 
-        HorizontalLayout layout = new HorizontalLayout(progressBar, refillButton);
+        HorizontalLayout fieldButtonLayout = new HorizontalLayout(expectedDepletionField, refillButton);
+        fieldButtonLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+
+        HorizontalLayout layout = new HorizontalLayout(progressBar, fieldButtonLayout);
         layout.setWidthFull();
         layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
         return layout;
     }
 
-    private Button createRefillButton(SensorData sensorData) {
+    private Component createDepletionField(SensorDataEnriched data) {
+        TextField timeField = new TextField("Expected Depletion");
+        timeField.setValue(data.getExpectedDepletion().format(dateTimeFormatter));
+        timeField.setHelperText("Based on SMA of linear gradient");
+        timeField.setReadOnly(true);
+        return timeField;
+    }
+
+    private Button createRefillButton(SensorDataEnriched data) {
         Button refillButton = new Button("Refill");
-        refillButton.addClickListener(e -> triggerRefillOfSensor(sensorData));
+        refillButton.addClickListener(e -> triggerRefillOfSensor(data));
         return refillButton;
     }
 
-    private Div createProgressBarWithLabel(SensorData sensorData) {
-        FlexLayout label = createLabel(sensorData);
-        ProgressBar progressBar = createProgressBar(sensorData);
+    private Div createProgressBarWithLabel(SensorDataEnriched data) {
+        FlexLayout label = createLabel(data);
+        ProgressBar progressBar = createProgressBar(data);
 
         Div layout = new Div(label, progressBar);
         layout.setWidthFull();
@@ -78,12 +99,12 @@ public class SensorDataLayout extends VerticalLayout {
         return layout;
     }
 
-    private FlexLayout createLabel(SensorData sensorData) {
+    private FlexLayout createLabel(SensorDataEnriched data) {
         Div labelText = new Div();
         labelText.setText("Current Filling");
 
         Div labelValue = new Div();
-        labelValue.setText(transformToPercentage(sensorData.getData()) + " %");
+        labelValue.setText(transformToPercentage(data.getData()) + " %");
 
         FlexLayout label = new FlexLayout(labelText, labelValue);
         label.setJustifyContentMode(JustifyContentMode.BETWEEN);
@@ -91,20 +112,20 @@ public class SensorDataLayout extends VerticalLayout {
         return label;
     }
 
-    private ProgressBar createProgressBar(SensorData sensorData) {
+    private ProgressBar createProgressBar(SensorDataEnriched data) {
         double min = 0.0, max = 1.0;
         ProgressBar progressBar = new ProgressBar(min, max);
-        progressBar.setValue(sensorData.getData());
-        progressBar.addThemeVariants(getAppropriateProgressBarTheme(sensorData));
+        progressBar.setValue(data.getData());
+        progressBar.addThemeVariants(getAppropriateProgressBarTheme(data));
         progressBar.setWidthFull();
         return progressBar;
     }
 
-    private ProgressBarVariant getAppropriateProgressBarTheme(SensorData sensorData) {
-        if(sensorData.getData() >= 0.9) {
+    private ProgressBarVariant getAppropriateProgressBarTheme(SensorDataEnriched data) {
+        if(data.getData() >= 0.9) {
             return ProgressBarVariant.LUMO_SUCCESS;
         }
-        if(sensorData.getData() < 0.2) {
+        if(data.getData() < 0.2) {
             return ProgressBarVariant.LUMO_ERROR;
         }
         return ProgressBarVariant.LUMO_CONTRAST;
@@ -114,7 +135,7 @@ public class SensorDataLayout extends VerticalLayout {
         return (int) Math.round(100 * decimalNumber);
     }
 
-    private void triggerRefillOfSensor(SensorData sensorData) {
-         sensorService.triggerSensorReset(sensorData);
+    private void triggerRefillOfSensor(SensorDataEnriched data) {
+         sensorService.triggerSensorReset(data);
     }
 }

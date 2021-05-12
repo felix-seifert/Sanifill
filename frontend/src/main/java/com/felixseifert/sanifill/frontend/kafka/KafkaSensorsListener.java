@@ -18,6 +18,7 @@
 package com.felixseifert.sanifill.frontend.kafka;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataSma;
 import com.felixseifert.sanifill.frontend.service.SensorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,19 @@ public class KafkaSensorsListener {
         this.sensorService = sensorService;
     }
 
-    @KafkaListener(id = "frontend-listener", topics = "sensors")
+    @KafkaListener(id = "${sanifill.kafka.sensors.id}",
+            topics = "${sanifill.kafka.sensors.topic}",
+            containerFactory = "${sanifill.kafka.sensors.container-factory}")
     public void listenToSensorsTopic(SensorData sensorData) {
         LOGGER.info("Received sensorData: {}", sensorData);
         sensorService.sendSensorDataToUis(sensorData);
+    }
+
+    @KafkaListener(id = "${sanifill.kafka.sensors-sma.id}",
+            topics = "${sanifill.kafka.sensors-sma.topic}",
+            containerFactory = "${sanifill.kafka.sensors-sma.container-factory}")
+    public void listenToAverageGradients(SensorDataSma sensorDataSma) {
+        LOGGER.info("Received gradient average: {}", sensorDataSma);
+        sensorService.sendSensorDataToUis(sensorDataSma);
     }
 }

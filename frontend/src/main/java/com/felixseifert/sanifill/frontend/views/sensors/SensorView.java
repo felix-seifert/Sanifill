@@ -17,14 +17,14 @@
 
 package com.felixseifert.sanifill.frontend.views.sensors;
 
-import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
 import com.vaadin.flow.component.html.Div;
 
 import java.util.Map;
 
 public abstract class SensorView extends Div {
 
-    public abstract void updateSensorData(SensorData sensorData);
+    public abstract void updateSensorData(SensorDataEnriched sensorData);
 
-    public abstract void updateSensorData(Map<String, SensorData> sensorDataMap);
+    public abstract void updateSensorData(Map<String, SensorDataEnriched> sensorDataMap);
 }

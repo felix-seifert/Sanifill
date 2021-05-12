@@ -18,6 +18,7 @@
 package com.felixseifert.sanifill.frontend.kafka;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataSma;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +42,7 @@ public class KafkaConsumerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ConsumerFactory<String, SensorData> consumerFactory() {
+    public ConsumerFactory<String, SensorData> consumerFactorySensorData() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -57,10 +58,35 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, SensorData> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, SensorData> kafkaListenerContainerFactorySensorData() {
         ConcurrentKafkaListenerContainerFactory<String, SensorData> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(consumerFactorySensorData());
+        factory.setBatchListener(true);
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, SensorDataSma> consumerFactorySensorDataSma() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+
+        JsonDeserializer<SensorDataSma> deserializer = new JsonDeserializer<>(SensorDataSma.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(true);
+
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, SensorDataSma> kafkaListenerContainerFactorySensorDataSma() {
+        ConcurrentKafkaListenerContainerFactory<String, SensorDataSma> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactorySensorDataSma());
         factory.setBatchListener(true);
         return factory;
     }

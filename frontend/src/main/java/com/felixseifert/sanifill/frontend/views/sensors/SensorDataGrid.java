@@ -17,7 +17,7 @@
 
 package com.felixseifert.sanifill.frontend.views.sensors;
 
-import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
 import com.felixseifert.sanifill.frontend.service.SensorService;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -25,19 +25,19 @@ import com.vaadin.flow.component.grid.GridVariant;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SensorDataGrid extends Grid<SensorData> {
+public class SensorDataGrid extends Grid<SensorDataEnriched> {
 
-    private final Map<String, SensorData> sensorsAndTheirCurrentValue = new HashMap<>();
+    private final Map<String, SensorDataEnriched> currentSensorData = new HashMap<>();
 
     public SensorDataGrid(SensorService sensorService) {
         this.setHeight("100%");
         this.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        this.addComponentColumn(sensorData -> new SensorDataLayout(sensorData, sensorService));
-        this.setItems(sensorsAndTheirCurrentValue.values());
+        this.addComponentColumn(data -> new SensorDataLayout(data, sensorService));
+        this.setItems(currentSensorData.values());
     }
 
-    public void addOrUpdateItem(SensorData sensorData) {
-        sensorsAndTheirCurrentValue.put(sensorData.getSensorId(), sensorData);
-        this.getDataProvider().refreshAll();
+    public void addOrUpdateItem(SensorDataEnriched data) {
+            currentSensorData.put(data.getSensorId(), data);
+            this.getDataProvider().refreshAll();
     }
 }
