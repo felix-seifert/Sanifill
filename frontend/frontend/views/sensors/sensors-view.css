@@ -2,3 +2,7 @@
   display: block;
   padding: 0;
 }
+
+.sensor-data-layout .update-date-time {
+  color: var(--lumo-disabled-text-color);
+}
