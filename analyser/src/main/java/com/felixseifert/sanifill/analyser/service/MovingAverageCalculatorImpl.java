@@ -87,6 +87,6 @@ public class MovingAverageCalculatorImpl implements MovingAverageCalculator {
                 (Duration.between(
                         mostRecentSensorData.get(sensorId).getDateTime(),
                         newSensorData.getDateTime())
-                        .toMillis());
+                        .toSeconds());
     }
 }
