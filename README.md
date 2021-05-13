@@ -19,25 +19,35 @@ found in the section [Run](#run).
 
 ## Run
 
-For the system to function, one have to start a message broker and other infrastructure which the system needs (amongst 
+* For the system to function, one have to start a message broker and other infrastructure which the system needs (amongst 
 others Kafka and database). This can be achieved by spinning up the Docker containers in 
-[`docker-compose.yml`](infrastructure/docker-compose.yml) with a simple `docker-compose up`.
-
-To simulate some physical sensors which publish their data to Kafka, start any desired number of sensors in the folder 
-[sensor](sensor) with `./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>`.
-
-You can then use the Vaadin frontend to consume the sensor data from Kafka and display analytics performed on the data. 
-Just start the [Sanifill frontend](frontend) by navigating to its folder and executing the command 
-`mvn spring-boot:run -Pproduction`. Open `http://localhost:8080/` to see the frontend programme.
-
-Further analytics can be performed on the sensor data. This often required the history of more or all the sensor data. 
+[`docker-compose.yml`](infrastructure/docker-compose.yml) with a simple
+  ```shell script
+  docker-compose up
+  ```
+* To simulate some physical sensors which publish their data to Kafka, start any desired number of sensors in the folder 
+[sensor](sensor) with 
+  ```shell script
+  ./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>
+  ```
+* You can then use the Vaadin frontend to consume the sensor data from Kafka and display analytics performed on the data. 
+Just start the [Sanifill frontend](frontend) by navigating to its folder and executing the command
+  ```shell script
+  mvn spring-boot:run -Pproduction
+  ```
+  Open `http://localhost:8080/` to see the frontend programme.
+* Further analytics can be performed on the sensor data. This often required the history of more or all the sensor data. 
 The service [database-storage](database-storage) consumes the Kafka messages to store them in a relational database. 
-Start the service by navigating to its folder and executing the command `./mvnw quarkus:dev -Dquarkus.http.port=<port>`.
-
-To analyse the sensor data, the service [analyser](analyser) calculates a moving average of the gradients of the sensor 
+Start the service by navigating to its folder and executing the command 
+  ```shell script
+  ./mvnw quarkus:dev -Dquarkus.http.port=<port>
+  ```
+* To analyse the sensor data, the service [analyser](analyser) calculates a moving average of the gradients of the sensor 
 data. These averages are then used to get an expected depletion date. To let the service consume the channel `sensors` 
-and produce new messages on the channel `sensors-sma`, navigate to the service's folder and execute the command 
-`./mvnw quarkus:dev -Dquarkus.http.port=<port> -Danalyser.sma-values=<number-of-values-for-sma>`.
+and produce new messages on the channel `sensors-sma`, navigate to the service's folder and execute the command
+  ```shell script
+  ./mvnw quarkus:dev -Dquarkus.http.port=<port> -Danalyser.sma-values=<number-of-values-for-sma>
+  ```
 
 ## Used Technology
 

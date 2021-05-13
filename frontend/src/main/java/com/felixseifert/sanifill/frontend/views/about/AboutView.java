@@ -35,7 +35,7 @@ public class AboutView extends VerticalLayout {
         addClassName("about-view");
 
         add(new HorizontalLayout(new Span("Sanifill displays the data of sensors. These sensors provide " +
-                "information about the filling of the monitored liquidity containers (e.g. soap dispensers or hand " +
+                "information about the content of the monitored containers (e.g. soap dispensers or hand " +
                 "sanitiser bottles).")));
         add(new HorizontalLayout(new Span(new Span("The source code and a brief description can be found on GitHub: "),
                 new Anchor("https://github.com/felix-seifert/Sanifill", "https://github.com/felix-seifert/Sanifill"))));
