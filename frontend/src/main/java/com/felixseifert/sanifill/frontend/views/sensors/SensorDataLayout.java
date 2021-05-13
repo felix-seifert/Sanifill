@@ -17,8 +17,9 @@
 
 package com.felixseifert.sanifill.frontend.views.sensors;
 
-import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
 import com.felixseifert.sanifill.frontend.service.SensorService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
@@ -28,83 +29,134 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
+import com.vaadin.flow.component.textfield.TextField;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class SensorDataLayout extends VerticalLayout {
 
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
     private final SensorService sensorService;
 
-    public SensorDataLayout(SensorData sensorData, SensorService sensorService) {
+    public SensorDataLayout(SensorDataEnriched data, SensorService sensorService) {
         this.sensorService = sensorService;
-        this.add(createHeader(sensorData),
-                createProgressBarAndRefillButton(sensorData));
+        addClassName("sensor-data-layout");
+        add(createHeader(data), createProgressBarHorizontalLine(data));
     }
 
-    private HorizontalLayout createHeader(SensorData sensorData) {
-        H3 id = new H3(sensorData.getSensorId());
-        id.setWidthFull();
-        Span dateTime = new Span(sensorData.getDateTime().toString());
-
-        HorizontalLayout layout = new HorizontalLayout(id, dateTime);
+    private HorizontalLayout createHeader(SensorDataEnriched data) {
+        HorizontalLayout layout = new HorizontalLayout();
         layout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
         layout.setWidthFull();
-
+        layout.add(createIdHeading(data.getSensorId()));
+        layout.add(createDataTimeSpan(data.getDateTime()));
         return layout;
     }
 
-    private HorizontalLayout createProgressBarAndRefillButton(SensorData sensorData) {
-        Div progressBar = createProgressBarWithLabel(sensorData);
-        Button refillButton = createRefillButton(sensorData);
+    private H3 createIdHeading(String id) {
+        H3 idHeading = new H3(id);
+        idHeading.setWidthFull();
+        return idHeading;
+    }
 
-        HorizontalLayout layout = new HorizontalLayout(progressBar, refillButton);
+    private Span createDataTimeSpan(LocalDateTime dateTime) {
+        Span span = new Span("Last update: " + dateTime.format(dateTimeFormatter));
+        span.addClassName("update-date-time");
+        return span;
+    }
+
+    private HorizontalLayout createProgressBarHorizontalLine(SensorDataEnriched data) {
+        HorizontalLayout layout = new HorizontalLayout();
         layout.setWidthFull();
         layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-
+        if(!isStandardDataAvailable(data)) return layout;
+        layout.add(createProgressBarWithLabel(data));
+        layout.add(createDepletionFieldAndRefillButtonLayout(data));
         return layout;
     }
 
-    private Button createRefillButton(SensorData sensorData) {
+    private HorizontalLayout createDepletionFieldAndRefillButtonLayout(SensorDataEnriched data) {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        if(isExpectedDepletionAvailable(data)) {
+            layout.add(createDepletionField(data));
+        }
+        layout.add(createRefillButton(data));
+        return layout;
+    }
+
+    private boolean isStandardDataAvailable(SensorDataEnriched data) {
+        return !(Objects.isNull(data.getDateTime())
+                && Objects.isNull(data.getSensorAddress())
+                && Objects.isNull(data.getSensorPort())
+                && Objects.isNull(data.getData()));
+    }
+
+    private boolean isExpectedDepletionAvailable(SensorDataEnriched data) {
+        return !Objects.isNull(data.getExpectedDepletion());
+    }
+
+    private Component createDepletionField(SensorDataEnriched data) {
+        TextField timeField = new TextField("Expected Depletion");
+        timeField.setValue(data.getExpectedDepletion().format(dateTimeFormatter));
+        timeField.setHelperText("Based on SMA of linear gradient");
+        timeField.setReadOnly(true);
+        return timeField;
+    }
+
+    private Button createRefillButton(SensorDataEnriched data) {
         Button refillButton = new Button("Refill");
-        refillButton.addClickListener(e -> triggerRefillOfSensor(sensorData));
+        refillButton.addClickListener(e -> triggerRefillOfSensor(data));
         return refillButton;
     }
 
-    private Div createProgressBarWithLabel(SensorData sensorData) {
-        FlexLayout label = createLabel(sensorData);
-        ProgressBar progressBar = createProgressBar(sensorData);
+    private Div createProgressBarWithLabel(SensorDataEnriched data) {
+        FlexLayout label = createLabel(data);
+        ProgressBar progressBar = createProgressBar(data);
+        return combineLabelAndProgressbarInDiv(label, progressBar);
+    }
 
-        Div layout = new Div(label, progressBar);
-        layout.setWidthFull();
+    private Div combineLabelAndProgressbarInDiv(FlexLayout label, ProgressBar progressBar) {
+        Div div = new Div(label, progressBar);
+        div.setWidthFull();
+        return div;
+    }
 
+    private FlexLayout createLabel(SensorDataEnriched data) {
+        Div labelText = createDivWithText("Current Filling");
+        Div labelValue = createDivWithText(transformToPercentage(data.getData()) + " %");
+        return justifyTwoTexts(labelText, labelValue);
+    }
+
+    private FlexLayout justifyTwoTexts(Div text1, Div text2) {
+        FlexLayout layout = new FlexLayout(text1, text2);
+        layout.setJustifyContentMode(JustifyContentMode.BETWEEN);
         return layout;
     }
 
-    private FlexLayout createLabel(SensorData sensorData) {
-        Div labelText = new Div();
-        labelText.setText("Current Filling");
-
-        Div labelValue = new Div();
-        labelValue.setText(transformToPercentage(sensorData.getData()) + " %");
-
-        FlexLayout label = new FlexLayout(labelText, labelValue);
-        label.setJustifyContentMode(JustifyContentMode.BETWEEN);
-
-        return label;
+    private Div createDivWithText(String text) {
+        Div div = new Div();
+        div.setText(text);
+        return div;
     }
 
-    private ProgressBar createProgressBar(SensorData sensorData) {
+    private ProgressBar createProgressBar(SensorDataEnriched data) {
         double min = 0.0, max = 1.0;
         ProgressBar progressBar = new ProgressBar(min, max);
-        progressBar.setValue(sensorData.getData());
-        progressBar.addThemeVariants(getAppropriateProgressBarTheme(sensorData));
+        progressBar.setValue(data.getData());
+        progressBar.addThemeVariants(getAppropriateProgressBarTheme(data));
         progressBar.setWidthFull();
         return progressBar;
     }
 
-    private ProgressBarVariant getAppropriateProgressBarTheme(SensorData sensorData) {
-        if(sensorData.getData() >= 0.9) {
+    private ProgressBarVariant getAppropriateProgressBarTheme(SensorDataEnriched data) {
+        if(data.getData() >= 0.9) {
             return ProgressBarVariant.LUMO_SUCCESS;
         }
-        if(sensorData.getData() < 0.2) {
+        if(data.getData() < 0.2) {
             return ProgressBarVariant.LUMO_ERROR;
         }
         return ProgressBarVariant.LUMO_CONTRAST;
@@ -114,7 +166,7 @@ public class SensorDataLayout extends VerticalLayout {
         return (int) Math.round(100 * decimalNumber);
     }
 
-    private void triggerRefillOfSensor(SensorData sensorData) {
-         sensorService.triggerSensorReset(sensorData);
+    private void triggerRefillOfSensor(SensorDataEnriched data) {
+         sensorService.triggerSensorReset(data);
     }
 }

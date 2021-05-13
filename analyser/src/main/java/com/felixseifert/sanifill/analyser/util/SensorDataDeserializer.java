@@ -15,26 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.felixseifert.sanifill.frontend.service;
+package com.felixseifert.sanifill.analyser.util;
 
-import com.felixseifert.sanifill.frontend.model.SensorData;
-import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
-import com.felixseifert.sanifill.frontend.model.SensorDataSma;
-import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
+import com.felixseifert.sanifill.analyser.model.SensorData;
+import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 
-import java.util.Map;
+public class SensorDataDeserializer extends ObjectMapperDeserializer<SensorData> {
 
-public interface SensorService {
-
-    Map<String, SensorDataEnriched> getCurrentSensorData();
-
-    void sendSensorDataToUis(SensorData sensorData);
-
-    void sendSensorDataToUis(SensorDataSma sensorDataSma);
-
-    void triggerSensorReset(SensorDataEnriched sensorData);
-
-    void register(SensorView sensorView);
-
-    void unregister(SensorView sensorView);
+    public SensorDataDeserializer() {
+        super(SensorData.class);
+    }
 }

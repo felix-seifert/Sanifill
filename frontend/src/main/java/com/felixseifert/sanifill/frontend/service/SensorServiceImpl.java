@@ -18,6 +18,8 @@
 package com.felixseifert.sanifill.frontend.service;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
+import com.felixseifert.sanifill.frontend.model.SensorDataSma;
+import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
 import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
 import com.vaadin.flow.component.UI;
 import lombok.Getter;
@@ -26,9 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class SensorServiceImpl implements SensorService {
@@ -38,16 +43,80 @@ public class SensorServiceImpl implements SensorService {
     private final Map<UI, SensorView> sensorViews = new HashMap<>();
 
     @Getter
-    private final Map<String, SensorData> sensorsAndTheirCurrentValue = new HashMap<>();
+    private final Map<String, SensorDataEnriched> currentSensorData = new HashMap<>();
+    // TODO: Get current values from service `database-storage`
 
     @Override
     public void sendSensorDataToUis(SensorData sensorData) {
-        sensorsAndTheirCurrentValue.put(sensorData.getSensorId(), sensorData);
-        sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).updateSensorData(sensorData)));
+        SensorDataEnriched dataEnriched = putNewSensorData(sensorData);
+        sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).updateSensorData(dataEnriched)));
+    }
+
+    private SensorDataEnriched putNewSensorData(SensorData sensorData) {
+        synchronized(currentSensorData) {
+            SensorDataEnriched dataEnriched = getSensorDataEnriched(sensorData);
+            currentSensorData.put(sensorData.getSensorId(), dataEnriched);
+            return dataEnriched;
+        }
+    }
+
+    private SensorDataEnriched getSensorDataEnriched(SensorData sensorData) {
+        SensorDataEnriched currentData = currentSensorData.get(sensorData.getSensorId());
+        return new SensorDataEnriched(
+                sensorData.getSensorId(),
+                sensorData.getSensorAddress(),
+                sensorData.getSensorPort(),
+                sensorData.getDateTime(),
+                sensorData.getData(),
+                Objects.isNull(currentData) ? null : currentData.getExpectedDepletion());
     }
 
     @Override
-    public void triggerSensorReset(SensorData sensorData) {
+    public void sendSensorDataToUis(SensorDataSma sensorDataSma) {
+        SensorDataEnriched dataEnriched = putNewSensorData(sensorDataSma);
+        sensorViews.keySet().forEach(ui -> ui.access(() -> sensorViews.get(ui).updateSensorData(dataEnriched)));
+    }
+
+    private SensorDataEnriched putNewSensorData(SensorDataSma sensorDataSma) {
+        synchronized(currentSensorData) {
+            SensorDataEnriched dataEnriched = getSensorDataEnriched(sensorDataSma);
+            currentSensorData.put(sensorDataSma.getSensorId(), dataEnriched);
+            return dataEnriched;
+        }
+    }
+
+    private SensorDataEnriched getSensorDataEnriched(SensorDataSma sensorDataSma) {
+        SensorDataEnriched currentData = currentSensorData.get(sensorDataSma.getSensorId());
+        return new SensorDataEnriched(
+                sensorDataSma.getSensorId(),
+                Objects.isNull(currentData) ? null : currentData.getSensorAddress(),
+                Objects.isNull(currentData) ? null : currentData.getSensorPort(),
+                Objects.isNull(currentData) ? null : currentData.getDateTime(),
+                Objects.isNull(currentData) ? null : currentData.getData(),
+                calculateExpectedDepletion(sensorDataSma, currentSensorData));
+    }
+
+    private LocalDateTime calculateExpectedDepletion(SensorDataSma sensorDataSma,
+                                                     Map<String, SensorDataEnriched> currentSensorData) {
+        // Under assumption of linear decrease of filling, filling(time) = gradient * time + constant
+        // We know current time, filling and gradient and calculate constant.
+        //      constant = currentFilling - gradient * currentTime
+        // For depletion, we assume filling = 0 and calculate time.
+        //      projectedTime = -constant / gradient
+
+        double currentFilling = currentSensorData.get(sensorDataSma.getSensorId()).getData();
+        double gradient = sensorDataSma.getMovingAverage();
+        long currentTime = currentSensorData.get(sensorDataSma.getSensorId()).getDateTime()
+                .atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+
+        double constant = currentFilling - (gradient * currentTime);
+        long projectedTimeSeconds = (long) (0 - (constant / gradient));
+
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(projectedTimeSeconds), ZoneId.systemDefault());
+    }
+
+    @Override
+    public void triggerSensorReset(SensorDataEnriched sensorData) {
         WebClient.create()
                 .post()
                 .uri(uriBuilder -> uriBuilder
