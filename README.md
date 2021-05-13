@@ -1,9 +1,8 @@
 # Sanifill [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Sanifill is a system which allows analytics of the filling and usage of liquid in sanitary liquid containers like soap 
-dispensers or hand sanitiser containers. Sanifill does so by reading the filling of liquid containers through sensors 
-which are then published to a Kafka topic. From this topic, several consumers can read the sensor data and perform their 
-analytics.
+Sanifill is a system which allows analytics of the usage of liquid in sanitary liquid containers like soap dispensers or 
+hand sanitiser containers. Sanifill does so by reading the filling of liquid containers through sensors which are then 
+published to a Kafka topic. From this topic, several consumers can read the sensor data and perform their analytics.
 
 Sanifill uses sensors which integrated in the existing environment and therefore, adapt to the user. The system's user, 
 a cleaner or someone else responsible for refilling the liquid containers, benefits from the information the system 
@@ -27,6 +26,11 @@ Just start the [Sanifill frontend](frontend) by navigating to its folder and exe
 Further analytics can be performed on the sensor data. This often required the history of more or all the sensor data. 
 The service [database-storage](database-storage) consumes the Kafka messages to store them in a relational database. 
 Start the service by navigating to its folder and executing the command `./mvnw quarkus:dev -Dquarkus.http.port=<port>`.
+
+To analyse the sensor data, the service [analyser](analyser) calculates a moving average of the gradients of the sensor 
+data. These averages are then used to get an expected depletion date. To let the service consume the channel `sensors` 
+and produce new messages on the channel `sensors-sma`, navigate to the service's folder and execute the command 
+`./mvnw quarkus:dev -Dquarkus.http.port=<port> -Danalyser.sma-values=<number-of-values-for-sma>`.
 
 ## Used Technology
 
