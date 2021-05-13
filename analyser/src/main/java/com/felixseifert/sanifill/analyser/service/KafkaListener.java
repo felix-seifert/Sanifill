@@ -21,6 +21,7 @@ import com.felixseifert.sanifill.analyser.model.SensorData;
 import com.felixseifert.sanifill.analyser.model.SensorDataSma;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
@@ -34,6 +35,9 @@ import java.util.Objects;
 public class KafkaListener {
 
     private static final Logger LOGGER = Logger.getLogger(KafkaListener.class);
+
+    @ConfigProperty(name = "analyser.sma-values", defaultValue = "2")
+    int numberOfValuesForMovingAverage;
 
     @Inject
     EventBus eventBus;
@@ -55,7 +59,8 @@ public class KafkaListener {
         if(Objects.isNull(sensorDataSma.getMovingAverage())) {
             return;
         }
-        LOGGER.infov("Send moving average of {0} at {1}: {2}",
+        LOGGER.infov("Send moving average of last {0} values of content gradient of sensor {1} at {2}: {3}",
+                numberOfValuesForMovingAverage,
                 sensorDataSma.getSensorId(),
                 sensorDataSma.getTimeOfAverage(),
                 sensorDataSma.getMovingAverage().toString());

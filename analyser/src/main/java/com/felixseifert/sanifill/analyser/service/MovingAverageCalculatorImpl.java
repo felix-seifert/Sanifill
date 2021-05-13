@@ -23,6 +23,7 @@ import com.felixseifert.sanifill.analyser.model.SensorDataSma;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.common.constraint.NotNull;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.Duration;
@@ -32,7 +33,8 @@ import java.util.Map;
 @ApplicationScoped
 public class MovingAverageCalculatorImpl implements MovingAverageCalculator {
 
-    private final int numberOfValuesForMovingAverage = 2;
+    @ConfigProperty(name = "analyser.sma-values", defaultValue = "2")
+    int numberOfValuesForMovingAverage;
 
     private final Map<String, SensorData> mostRecentSensorData = new HashMap<>();
 
