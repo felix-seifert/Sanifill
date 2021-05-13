@@ -30,10 +30,10 @@ public class SensorDataGrid extends Grid<SensorDataEnriched> {
     private final Map<String, SensorDataEnriched> currentSensorData = new HashMap<>();
 
     public SensorDataGrid(SensorService sensorService) {
-        this.setHeight("100%");
-        this.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        this.addComponentColumn(data -> new SensorDataLayout(data, sensorService));
-        this.setItems(currentSensorData.values());
+        setHeight("100%");
+        addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
+        addComponentColumn(data -> new SensorDataLayout(data, sensorService));
+        setItems(currentSensorData.values());
     }
 
     public void addOrUpdateItem(SensorDataEnriched data) {

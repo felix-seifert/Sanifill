@@ -31,7 +31,9 @@ import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
 import com.vaadin.flow.component.textfield.TextField;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class SensorDataLayout extends VerticalLayout {
 
@@ -41,38 +43,60 @@ public class SensorDataLayout extends VerticalLayout {
 
     public SensorDataLayout(SensorDataEnriched data, SensorService sensorService) {
         this.sensorService = sensorService;
-
         addClassName("sensor-data-layout");
-        add(createHeader(data),
-                createProgressBarHorizontalLine(data));
+        add(createHeader(data), createProgressBarHorizontalLine(data));
     }
 
     private HorizontalLayout createHeader(SensorDataEnriched data) {
-        H3 id = new H3(data.getSensorId());
-        id.setWidthFull();
-        Span dateTime = new Span("Last update: " + data.getDateTime().format(dateTimeFormatter));
-        dateTime.addClassName("update-date-time");
-
-        HorizontalLayout layout = new HorizontalLayout(id, dateTime);
+        HorizontalLayout layout = new HorizontalLayout();
         layout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
         layout.setWidthFull();
-
+        layout.add(createIdHeading(data.getSensorId()));
+        layout.add(createDataTimeSpan(data.getDateTime()));
         return layout;
     }
 
+    private H3 createIdHeading(String id) {
+        H3 idHeading = new H3(id);
+        idHeading.setWidthFull();
+        return idHeading;
+    }
+
+    private Span createDataTimeSpan(LocalDateTime dateTime) {
+        Span span = new Span("Last update: " + dateTime.format(dateTimeFormatter));
+        span.addClassName("update-date-time");
+        return span;
+    }
+
     private HorizontalLayout createProgressBarHorizontalLine(SensorDataEnriched data) {
-        Div progressBar = createProgressBarWithLabel(data);
-        Component expectedDepletionField = createDepletionField(data);
-        Button refillButton = createRefillButton(data);
-
-        HorizontalLayout fieldButtonLayout = new HorizontalLayout(expectedDepletionField, refillButton);
-        fieldButtonLayout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-
-        HorizontalLayout layout = new HorizontalLayout(progressBar, fieldButtonLayout);
+        HorizontalLayout layout = new HorizontalLayout();
         layout.setWidthFull();
         layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-
+        if(!isStandardDataAvailable(data)) return layout;
+        layout.add(createProgressBarWithLabel(data));
+        layout.add(createDepletionFieldAndRefillButtonLayout(data));
         return layout;
+    }
+
+    private HorizontalLayout createDepletionFieldAndRefillButtonLayout(SensorDataEnriched data) {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
+        if(isExpectedDepletionAvailable(data)) {
+            layout.add(createDepletionField(data));
+        }
+        layout.add(createRefillButton(data));
+        return layout;
+    }
+
+    private boolean isStandardDataAvailable(SensorDataEnriched data) {
+        return !(Objects.isNull(data.getDateTime())
+                && Objects.isNull(data.getSensorAddress())
+                && Objects.isNull(data.getSensorPort())
+                && Objects.isNull(data.getData()));
+    }
+
+    private boolean isExpectedDepletionAvailable(SensorDataEnriched data) {
+        return !Objects.isNull(data.getExpectedDepletion());
     }
 
     private Component createDepletionField(SensorDataEnriched data) {
@@ -92,24 +116,31 @@ public class SensorDataLayout extends VerticalLayout {
     private Div createProgressBarWithLabel(SensorDataEnriched data) {
         FlexLayout label = createLabel(data);
         ProgressBar progressBar = createProgressBar(data);
+        return combineLabelAndProgressbarInDiv(label, progressBar);
+    }
 
-        Div layout = new Div(label, progressBar);
-        layout.setWidthFull();
-
-        return layout;
+    private Div combineLabelAndProgressbarInDiv(FlexLayout label, ProgressBar progressBar) {
+        Div div = new Div(label, progressBar);
+        div.setWidthFull();
+        return div;
     }
 
     private FlexLayout createLabel(SensorDataEnriched data) {
-        Div labelText = new Div();
-        labelText.setText("Current Filling");
+        Div labelText = createDivWithText("Current Filling");
+        Div labelValue = createDivWithText(transformToPercentage(data.getData()) + " %");
+        return justifyTwoTexts(labelText, labelValue);
+    }
 
-        Div labelValue = new Div();
-        labelValue.setText(transformToPercentage(data.getData()) + " %");
+    private FlexLayout justifyTwoTexts(Div text1, Div text2) {
+        FlexLayout layout = new FlexLayout(text1, text2);
+        layout.setJustifyContentMode(JustifyContentMode.BETWEEN);
+        return layout;
+    }
 
-        FlexLayout label = new FlexLayout(labelText, labelValue);
-        label.setJustifyContentMode(JustifyContentMode.BETWEEN);
-
-        return label;
+    private Div createDivWithText(String text) {
+        Div div = new Div();
+        div.setText(text);
+        return div;
     }
 
     private ProgressBar createProgressBar(SensorDataEnriched data) {
