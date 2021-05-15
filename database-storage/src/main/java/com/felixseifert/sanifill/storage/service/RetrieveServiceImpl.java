@@ -18,25 +18,35 @@
 package com.felixseifert.sanifill.storage.service;
 
 import com.felixseifert.sanifill.storage.model.SensorData;
-import com.felixseifert.sanifill.storage.model.SensorDataIncoming;
-import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.common.annotation.Blocking;
+import com.felixseifert.sanifill.storage.repository.SensorDataRepository;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.List;
 
 @ApplicationScoped
-public class StorageServiceImpl implements StorageService {
+public class RetrieveServiceImpl implements RetrieveService {
 
-    private static final Logger LOGGER = Logger.getLogger(StorageServiceImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(RetrieveServiceImpl.class);
+
+    @Inject
+    SensorDataRepository sensorDataRepository;
 
     @Override
-    @ConsumeEvent("storeIncomingSensorData")
-    @Blocking
     @Transactional
-    public void storeIncomingSensorData(SensorDataIncoming sensorDataIncoming) {
-        SensorData sensorData = SensorData.addIncoming(sensorDataIncoming);
-        LOGGER.infov("Persisted SensorData: {0}", sensorData);
+    public List<SensorData> getNLatestSensorDataOfEachSensor(int n) {
+        List<SensorData> sensorDataList = sensorDataRepository.findNLatestOfEachSensor(n);
+        LOGGER.infov("Retrieved latest {0} SensorData for all sensors: {1}", n, sensorDataList);
+        return sensorDataList;
+    }
+
+    @Override
+    @Transactional
+    public List<SensorData> getLatestSensorDataOfEachSensor() {
+        List<SensorData> sensorDataList = sensorDataRepository.findLatestOfEachSensor();
+        LOGGER.infov("Retrieved latest SensorData for all sensors: {0}", sensorDataList);
+        return sensorDataList;
     }
 }

@@ -17,11 +17,13 @@
 
 package com.felixseifert.sanifill.storage.service;
 
-import com.felixseifert.sanifill.storage.model.SensorDataIncoming;
+import com.felixseifert.sanifill.storage.model.SensorData;
 
-import javax.validation.Valid;
+import java.util.List;
 
-public interface StorageService {
+public interface RetrieveService {
 
-    void storeIncomingSensorData(@Valid SensorDataIncoming sensorDataIncoming);
+    List<SensorData> getNLatestSensorDataOfEachSensor(int n);
+
+    List<SensorData> getLatestSensorDataOfEachSensor();
 }

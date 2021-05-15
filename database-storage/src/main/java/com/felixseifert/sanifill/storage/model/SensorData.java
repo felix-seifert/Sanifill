@@ -17,66 +17,51 @@
 
 package com.felixseifert.sanifill.storage.model;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import lombok.ToString;
+import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "sensor_data")
 @RegisterForReflection
-@ToString
-public class SensorData extends PanacheEntity {
+@Data
+public class SensorData {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sensorDataSeq")
+    private Long id;
 
     @NotBlank(message = "Sensor ID '${validatedValue}' of sensor data must not be blank")
     @Column(nullable = false)
-    public String sensorId;
+    private String sensorId;
 
     @NotBlank(message = "Sensor address '${validatedValue}' of sensor data must not be blank")
     @Column(nullable = false)
-    public String sensorAddress;
+    private String sensorAddress;
 
     @NotNull(message = "Sensor port '${validatedValue}' of sensor data must not be null")
     @Column(nullable = false)
-    public Integer sensorPort;
+    private Integer sensorPort;
 
     @NotNull(message = "Date time '${validatedValue}' of when sensor data was produced must not be null")
     @Column(nullable = false)
-    public LocalDateTime dateTime;
+    private LocalDateTime dateTime;
 
     @NotNull(message = "Data '${validatedValue}' of sensor data must not be null")
     @Column(nullable = false)
-    public Double data;
+    private Double data;
 
-    public static SensorData add(String sensorId, String sensorAddress, Integer sensorPort,
-                           LocalDateTime dateTime, Double data) {
+    public static SensorData constructFromSensorDataIncoming(SensorDataIncoming sensorDataIncoming) {
         SensorData sensorData = new SensorData();
-        sensorData.sensorId = sensorId;
-        sensorData.sensorAddress = sensorAddress;
-        sensorData.sensorPort = sensorPort;
-        sensorData.dateTime = dateTime;
-        sensorData.data = data;
-        sensorData.persist();
+        sensorData.setSensorId(sensorDataIncoming.getSensorId());
+        sensorData.setSensorAddress(sensorDataIncoming.getSensorAddress());
+        sensorData.setSensorPort(sensorDataIncoming.getSensorPort());
+        sensorData.setDateTime(sensorDataIncoming.getDateTime());
+        sensorData.setData(sensorDataIncoming.getData());
         return sensorData;
-    }
-
-    public static SensorData addIncoming(SensorDataIncoming sensorDataIncoming) {
-        return add(sensorDataIncoming.getSensorId(),
-                sensorDataIncoming.getSensorAddress(),
-                sensorDataIncoming.getSensorPort(),
-                sensorDataIncoming.getDateTime(),
-                sensorDataIncoming.getData());
-    }
-
-    public static List<SensorData> findAllBySensorId(String sensorId) {
-        return list("sensorId", Sort.by("dateTime"), sensorId);
     }
 }
