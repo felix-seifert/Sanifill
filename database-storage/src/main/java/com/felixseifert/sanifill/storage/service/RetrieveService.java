@@ -24,6 +24,4 @@ import java.util.List;
 public interface RetrieveService {
 
     List<SensorData> getNLatestSensorDataOfEachSensor(int n);
-
-    List<SensorData> getLatestSensorDataOfEachSensor();
 }

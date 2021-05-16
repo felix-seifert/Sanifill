@@ -43,7 +43,7 @@ public class RetrieveSensorDataResource {
     RetrieveService retrieveService;
 
     @GET
-    public Response getNLatest(@QueryParam("n") int n) {
+    public Response getNLatest(@DefaultValue("1") @QueryParam("n") int n) {
         List<SensorData> latestN = retrieveService.getNLatestSensorDataOfEachSensor(n);
         LOGGER.infov("Return {0} SensorData to {1}",
                 latestN.size(),
@@ -51,16 +51,5 @@ public class RetrieveSensorDataResource {
         return Response
                 .status(Response.Status.OK)
                 .entity(latestN).build();
-    }
-
-    @GET
-    public Response getLatest() {
-        List<SensorData> latest = retrieveService.getLatestSensorDataOfEachSensor();
-        LOGGER.infov("Return {0} SensorData to {1}",
-                latest.size(),
-                httpServerRequest.remoteAddress().toString());
-        return Response
-                .status(Response.Status.OK)
-                .entity(latest).build();
     }
 }

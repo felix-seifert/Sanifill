@@ -38,15 +38,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Transactional
     public List<SensorData> getNLatestSensorDataOfEachSensor(int n) {
         List<SensorData> sensorDataList = sensorDataRepository.findNLatestOfEachSensor(n);
-        LOGGER.infov("Retrieved latest {0} SensorData for all sensors: {1}", n, sensorDataList);
-        return sensorDataList;
-    }
-
-    @Override
-    @Transactional
-    public List<SensorData> getLatestSensorDataOfEachSensor() {
-        List<SensorData> sensorDataList = sensorDataRepository.findLatestOfEachSensor();
-        LOGGER.infov("Retrieved latest SensorData for all sensors: {0}", sensorDataList);
+        LOGGER.infov("Retrieved latest {0} SensorData of all sensors: {1}", n, sensorDataList);
         return sensorDataList;
     }
 }
