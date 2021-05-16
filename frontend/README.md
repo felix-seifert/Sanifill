@@ -5,11 +5,19 @@ their monitored containers got refilled.
 
 ## Run
 
-To run the Snaifill frontend in production mode without separating build and run, you can use the Spring Boot plugin to 
+To run the Sanifill frontend in production mode without separating build and run, you can use the Spring Boot plugin to 
 start the application and see it in your browser via the address `http://localhost:8080/`.
 
 ```shell script
 mvn spring-boot:run -Pproduction
+```
+
+The frontend attempts on startup to retrieve the latest sensor data from the storage service. It therefore needs the 
+storage service's port via the property `sanifill.storage-service`. You can just pass it to the application with the 
+`-D` flag.
+
+```shell script
+mvn spring-boot:run -Pproduction -Dsanifill.storage-service.port=8081
 ```
 
 ## Project structure
