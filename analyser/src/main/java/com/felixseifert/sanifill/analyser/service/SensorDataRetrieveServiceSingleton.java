@@ -26,9 +26,6 @@ import java.util.Optional;
 
 public class SensorDataRetrieveServiceSingleton {
 
-//    @ConfigProperty(name = "sanifill.storage-service.port")
-//    static Optional<Integer> storagePort;
-
     private static SensorDataRetrieveService serviceSingleton;
 
     private SensorDataRetrieveServiceSingleton() {}
