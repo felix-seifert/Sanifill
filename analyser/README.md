@@ -13,6 +13,16 @@ plugin via the Maven wrapper.
 ./mvnw quarkus:dev -Dquarkus.http.port=<port>
 ```
 
+## Load Data From Storage on Startup
+
+When the `analyser` service starts, it attempts to retrieve the needed number of sensor data of every sensor from the 
+service `database-storage` (success or failure can be observed in the logs). To achieve this, `analyser` has to know the 
+port of the storage. You can provide the port via the `-D` flag at startup.
+
+```shell script
+./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsanifill.storage-service.port=<storage-port>
+```
+
 ## Simple Moving Average (SMA)
 
 The service calculates a SMA of the gradients. The gradient assumes a linear function between two data points. These 

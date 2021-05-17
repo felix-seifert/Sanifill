@@ -37,11 +37,12 @@ found in the section [Run](#run).
   ./mvnw quarkus:dev -Dquarkus.http.port=<port>
   ```
 * To analyse the sensor data, the service [analyser](analyser) calculates a moving average of the gradients of the 
-  sensor data. These averages are then used to get an expected depletion date. To let the service consume the channel 
-  `sensors`and produce new messages on the channel `sensors-sma`, navigate to the service's folder and execute the 
-  command
+  sensor data. These averages are then used to get an expected depletion date. At startup, the services attempts to 
+  retrieve the current sensor data from the `database-storage` and therefore needs the port of the storage. To let the 
+  service consume the channel`sensors` and produce new messages on the channel `sensors-sma`, navigate to the service's 
+  folder and execute the command
   ```shell script
-  ./mvnw quarkus:dev -Dquarkus.http.port=<port> -Danalyser.sma-values=<number-of-values-for-sma>
+  ./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsanifill.storage-service.port=<storage-port> -Danalyser.sma-values=<number-of-values-for-sma>
   ```
 * You can then use the Vaadin frontend to consume the sensor data from Kafka and display analytics performed on the 
   data. On startup, the frontend attempts to retrieve the latest sensor data from the storage service. It therefore has 
