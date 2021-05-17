@@ -55,62 +55,52 @@ therefore be started in the development mode with:
 ./mvnw quarkus:dev -Dsensor.id=<sensor-id>
 ```
 
-[comment]: <> (## Running the application in dev mode)
+## Run Sensor in Production Mode
 
-[comment]: <> (You can run your application in dev mode that enables live coding using:)
+To create a `.jar` of the sensor application, you have to package the whole application with the Maven Wrapper.
 
-[comment]: <> (```shell script)
+```shell script
+./mvnw package
+```
 
-[comment]: <> (./mvnw compile quarkus:dev)
+It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory. It can be run like any other `.jar` and 
+equipped with properties via the `-D` flag.
 
-[comment]: <> (```)
+```shell script
+java -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id> -jar target/quarkus-app/quarkus-run.jar
+```
 
-[comment]: <> (> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.)
+Be aware that the packaged application is not an _über-jar_ as the dependencies are copied into the 
+`target/quarkus-app/lib/` directory. If you want to build an _über-jar_, execute the following command:
 
-[comment]: <> (## Packaging and running the application)
+```shell script
+./mvnw package -Dquarkus.package.type=uber-jar
+```
 
-[comment]: <> (The application can be packaged using:)
+The application is then runnable using `java -jar target/quarkus-app/quarkus-run.jar`. (do not forget port and sensor 
+id).
 
-[comment]: <> (```shell script)
+## Run Sensor as Native Executable
 
-[comment]: <> (./mvnw package)
+To achieve a **blazingly fast startup** and an application with a **smaller footprint**, you can run the application as a 
+native executable. You can create a native executable using:
 
-[comment]: <> (```)
+```shell script
+./mvnw package -Pnative
+```
 
-[comment]: <> (It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory. Be aware that it’s not an _über-jar_ as)
+Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
-[comment]: <> (the dependencies are copied into the `target/quarkus-app/lib/` directory.)
+```shell script
+./mvnw package -Pnative -Dquarkus.native.container-build=true
+```
 
-[comment]: <> (If you want to build an _über-jar_, execute the following command:)
+You can then execute your native executable with `./target/sensor-1.0-SNAPSHOT-runner` and also provide it properties 
+via the `-D` flag.
 
-[comment]: <> (```shell script)
+```shell script
+./target/sensor-1.0-SNAPSHOT-runner -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>
+```
 
-[comment]: <> (./mvnw package -Dquarkus.package.type=uber-jar)
-
-[comment]: <> (```)
-
-[comment]: <> (The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.)
-
-[comment]: <> (## Creating a native executable)
-
-[comment]: <> (You can create a native executable using:)
-
-[comment]: <> (```shell script)
-
-[comment]: <> (./mvnw package -Pnative)
-
-[comment]: <> (```)
-
-[comment]: <> (Or, if you don't have GraalVM installed, you can run the native executable build in a container using:)
-
-[comment]: <> (```shell script)
-
-[comment]: <> (./mvnw package -Pnative -Dquarkus.native.container-build=true)
-
-[comment]: <> (```)
-
-[comment]: <> (You can then execute your native executable with: `./target/sensor-1.0-SNAPSHOT-runner`)
-
-[comment]: <> (If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html)
-
-[comment]: <> (.)
+If you want to learn more about building native executables, please consult 
+[https://quarkus.io/guides/maven-tooling.html](https://quarkus.io/guides/maven-tooling.html).

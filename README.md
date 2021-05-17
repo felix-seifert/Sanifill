@@ -4,9 +4,9 @@ Sanifill is a system which allows analytics of the usage of liquid in sanitary l
 hand sanitiser containers. Sanifill does so by reading the filling of liquid containers through sensors which are then 
 published to a Kafka topic. From this topic, several consumers can read the sensor data and perform their analytics.
 
-Sanifill uses sensors which integrated in the existing environment and therefore, adapt to the user. The system's user, 
-a cleaner or someone else responsible for refilling the liquid containers, benefits from the information the system 
-provides while the end-user of the sanitary facilities does not directly realise the existence of Sanifill or the 
+Sanifill uses sensors which are integrated in the existing environment and therefore, adapt to the user. The system's 
+user, a cleaner or someone else responsible for refilling the liquid containers, benefits from the information the 
+system provides while the end-user of the sanitary facilities does not directly realise the existence of Sanifill or the 
 system's sensors. As these sensors sense their environment, the filling of their monitored liquidity container, the 
 system is context-aware and, as opposed to sampling methods, listens to events.
 
@@ -55,11 +55,11 @@ found in the section [Run](#run).
 
 ## Used Technology
 
-* Quarkus to build sensor simulations and backend services
-* Kafka (with Zookeeper) as message broker between sensors and other components
-* PostgreSQL as relational database to persist sensors' data
-* Spring Boot and Vaadin to build frontend which consumes other services via Kafka and REST API
-* Docker to run required infrastructure and simplify running of built applications
+* _Quarkus_ to build sensor simulations and backend services
+* _Kafka_ (with _Zookeeper_) as message broker between sensors and other components
+* _PostgreSQL_ as relational database to persist sensors' data and retrieve them for analytics
+* _Spring Boot_ and _Vaadin_ to build frontend which consumes other services via Kafka and REST API
+* _Docker_ to run required infrastructure and simplify running of built applications
 
 ## Copyright and License
 

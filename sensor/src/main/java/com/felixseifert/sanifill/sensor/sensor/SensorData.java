@@ -17,6 +17,7 @@
 
 package com.felixseifert.sanifill.sensor.sensor;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @ToString
+@RegisterForReflection
 public class SensorData {
 
     private final String sensorId;
