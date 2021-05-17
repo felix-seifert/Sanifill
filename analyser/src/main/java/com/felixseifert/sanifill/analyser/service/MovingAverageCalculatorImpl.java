@@ -17,21 +17,28 @@
 
 package com.felixseifert.sanifill.analyser.service;
 
-import com.felixseifert.sanifill.analyser.util.MovingAverageStatistics;
 import com.felixseifert.sanifill.analyser.model.SensorData;
 import com.felixseifert.sanifill.analyser.model.SensorDataSma;
+import com.felixseifert.sanifill.analyser.util.MovingAverageStatistics;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.common.constraint.NotNull;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.ws.rs.ProcessingException;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @ApplicationScoped
 public class MovingAverageCalculatorImpl implements MovingAverageCalculator {
+
+    private static final Logger LOGGER = Logger.getLogger(MovingAverageCalculatorImpl.class);
 
     @ConfigProperty(name = "analyser.sma-values", defaultValue = "2")
     int numberOfValuesForMovingAverage;
@@ -40,10 +47,31 @@ public class MovingAverageCalculatorImpl implements MovingAverageCalculator {
 
     private final Map<String, MovingAverageStatistics> movingAverageMap = new HashMap<>();
 
-//    @PostConstruct
-//    public void loadRecentSensorData() {
-//        // TODO: load sensor data from storage
-//    }
+    @PostConstruct
+    public void loadRecentSensorData() {
+        if(Objects.isNull(SensorDataRetrieveServiceSingleton.getInstance())) {
+            LOGGER.warn("No port given of `database-storage`.");
+            LOGGER.warn("Current data has to be read from topic completely.");
+            return;
+        }
+        try {
+            getDataFromStorageAndAddToStatistics();
+            LOGGER.info("Sensor data received from storage and added to statistics for moving average.");
+        }
+        catch(ProcessingException e) {
+            LOGGER.warn("Service `database-storage` not available.");
+            LOGGER.warn("Current data has to be read from topic completely.");
+            LOGGER.warn("Either the service is offline or the address is wrong.");
+        }
+    }
+
+    private void getDataFromStorageAndAddToStatistics() {
+        SensorDataRetrieveServiceSingleton.getInstance()
+                .getLatestNSensorDataOfEachSensor(numberOfValuesForMovingAverage)
+                .stream()
+                .sorted(Comparator.comparing(SensorData::getDateTime))
+                .forEachOrdered(sensorData -> addNewGradientToStatistics(sensorData.getSensorId(), sensorData));
+    }
 
     @Override
     @ConsumeEvent("calculateSmaOfFillingGradient")

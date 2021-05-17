@@ -17,25 +17,31 @@
 
 package com.felixseifert.sanifill.storage.service;
 
+import com.felixseifert.sanifill.storage.model.SensorData;
 import com.felixseifert.sanifill.storage.model.SensorDataIncoming;
-import io.vertx.mutiny.core.eventbus.EventBus;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
+import com.felixseifert.sanifill.storage.repository.SensorDataRepository;
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.common.annotation.Blocking;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 @ApplicationScoped
-public class KafkaListener {
+public class PersistServiceImpl implements PersistService {
 
-    private static final Logger LOGGER = Logger.getLogger(KafkaListener.class);
+    private static final Logger LOGGER = Logger.getLogger(PersistServiceImpl.class);
 
     @Inject
-    EventBus eventBus;
+    SensorDataRepository sensorDataRepository;
 
-    @Incoming("sensors")
-    public void storeIncomingSensorData(SensorDataIncoming sensorDataIncoming) {
-        LOGGER.infov("Received SensorData: {0}", sensorDataIncoming);
-        eventBus.sendAndForget("storeIncomingSensorData", sensorDataIncoming);
+    @Override
+    @ConsumeEvent("storeIncomingSensorData")
+    @Blocking
+    @Transactional
+    public void persistIncomingSensorData(SensorDataIncoming sensorDataIncoming) {
+        SensorData sensorData = sensorDataRepository.addIncoming(sensorDataIncoming);
+        LOGGER.infov("Persisted SensorData: {0}", sensorData);
     }
 }

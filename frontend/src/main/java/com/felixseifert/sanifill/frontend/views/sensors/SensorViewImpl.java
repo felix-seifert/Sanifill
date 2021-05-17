@@ -24,7 +24,6 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.spring.annotation.SpringComponent;
@@ -38,7 +37,6 @@ import java.util.Map;
 @CssImport("./views/sensors/sensors-view.css")
 @SpringComponent
 @UIScope
-@PreserveOnRefresh
 public class SensorViewImpl extends SensorView {
 
     private final SensorService sensorService;

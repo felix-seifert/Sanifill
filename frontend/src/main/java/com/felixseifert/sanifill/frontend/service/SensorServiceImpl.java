@@ -18,22 +18,25 @@
 package com.felixseifert.sanifill.frontend.service;
 
 import com.felixseifert.sanifill.frontend.model.SensorData;
-import com.felixseifert.sanifill.frontend.model.SensorDataSma;
 import com.felixseifert.sanifill.frontend.model.SensorDataEnriched;
+import com.felixseifert.sanifill.frontend.model.SensorDataSma;
 import com.felixseifert.sanifill.frontend.views.sensors.SensorView;
 import com.vaadin.flow.component.UI;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class SensorServiceImpl implements SensorService {
@@ -43,8 +46,49 @@ public class SensorServiceImpl implements SensorService {
     private final Map<UI, SensorView> sensorViews = new HashMap<>();
 
     @Getter
-    private final Map<String, SensorDataEnriched> currentSensorData = new HashMap<>();
-    // TODO: Get current values from service `database-storage`
+    private final Map<String, SensorDataEnriched> currentSensorData = new ConcurrentHashMap<>();
+
+    public SensorServiceImpl(Environment environment) {
+        Optional.ofNullable(environment.getProperty("sanifill.storage-service.port", Integer.class))
+                .ifPresent(port -> currentSensorData.putAll(getLatestSensorData(port)));
+    }
+
+    private Map<String, SensorDataEnriched> getLatestSensorData(Integer port) {
+        try {
+            Map<String, SensorDataEnriched> sensorDataMap = Arrays.stream(
+                    WebClient.create()
+                            .get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .scheme("http")
+                                    .host("localhost")
+                                    .port(port)
+                                    .path("/api/v1/sensors").build()) // HTTP only because local
+                            .retrieve()
+                            .bodyToMono(SensorData[].class)
+                            .block())
+                    .map(this::produceSensorDataEnriched)
+                    .collect(Collectors.toMap(SensorDataEnriched::getSensorId,
+                            sensorDataEnriched -> sensorDataEnriched));
+            LOGGER.info("Got latest sensor data from {} sensors: {}",
+                    sensorDataMap.size(),
+                    String.join(", ", sensorDataMap.keySet()));
+            return sensorDataMap;
+        }
+        catch(WebClientRequestException exception) {
+            return Collections.emptyMap();
+        }
+    }
+
+    private SensorDataEnriched produceSensorDataEnriched(SensorData sensorData) {
+        return new SensorDataEnriched(
+                sensorData.getSensorId(),
+                sensorData.getSensorAddress(),
+                sensorData.getSensorPort(),
+                sensorData.getDateTime(),
+                sensorData.getData(),
+                null
+        );
+    }
 
     @Override
     public void sendSensorDataToUis(SensorData sensorData) {
@@ -53,11 +97,9 @@ public class SensorServiceImpl implements SensorService {
     }
 
     private SensorDataEnriched putNewSensorData(SensorData sensorData) {
-        synchronized(currentSensorData) {
-            SensorDataEnriched dataEnriched = getSensorDataEnriched(sensorData);
-            currentSensorData.put(sensorData.getSensorId(), dataEnriched);
-            return dataEnriched;
-        }
+        SensorDataEnriched dataEnriched = getSensorDataEnriched(sensorData);
+        currentSensorData.put(sensorData.getSensorId(), dataEnriched);
+        return dataEnriched;
     }
 
     private SensorDataEnriched getSensorDataEnriched(SensorData sensorData) {
@@ -78,11 +120,9 @@ public class SensorServiceImpl implements SensorService {
     }
 
     private SensorDataEnriched putNewSensorData(SensorDataSma sensorDataSma) {
-        synchronized(currentSensorData) {
-            SensorDataEnriched dataEnriched = getSensorDataEnriched(sensorDataSma);
-            currentSensorData.put(sensorDataSma.getSensorId(), dataEnriched);
-            return dataEnriched;
-        }
+        SensorDataEnriched dataEnriched = getSensorDataEnriched(sensorDataSma);
+        currentSensorData.put(sensorDataSma.getSensorId(), dataEnriched);
+        return dataEnriched;
     }
 
     private SensorDataEnriched getSensorDataEnriched(SensorDataSma sensorDataSma) {
@@ -93,20 +133,20 @@ public class SensorServiceImpl implements SensorService {
                 Objects.isNull(currentData) ? null : currentData.getSensorPort(),
                 Objects.isNull(currentData) ? null : currentData.getDateTime(),
                 Objects.isNull(currentData) ? null : currentData.getData(),
-                calculateExpectedDepletion(sensorDataSma, currentSensorData));
+                Objects.isNull(currentData) ? null : calculateExpectedDepletion(sensorDataSma, currentData));
     }
 
-    private LocalDateTime calculateExpectedDepletion(SensorDataSma sensorDataSma,
-                                                     Map<String, SensorDataEnriched> currentSensorData) {
+    private LocalDateTime calculateExpectedDepletion(@NotNull SensorDataSma sensorDataSma,
+                                                     @NotNull SensorDataEnriched currentData) {
         // Under assumption of linear decrease of filling, filling(time) = gradient * time + constant
         // We know current time, filling and gradient and calculate constant.
         //      constant = currentFilling - gradient * currentTime
         // For depletion, we assume filling = 0 and calculate time.
         //      projectedTime = -constant / gradient
 
-        double currentFilling = currentSensorData.get(sensorDataSma.getSensorId()).getData();
+        double currentFilling = currentData.getData();
         double gradient = sensorDataSma.getMovingAverage();
-        long currentTime = currentSensorData.get(sensorDataSma.getSensorId()).getDateTime()
+        long currentTime = currentData.getDateTime()
                 .atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
 
         double constant = currentFilling - (gradient * currentTime);
