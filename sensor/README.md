@@ -9,7 +9,9 @@ To run a sensor in Quarkus development mode without the need to separate build a
 via the Maven wrapper.
 
 ```shell script
-./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>
+./mvnw quarkus:dev \
+    -Dquarkus.http.port=<port> \
+    -Dsensor.id=<sensor-id>
 ```
 
 ## Kafka Topic and Sent Information
@@ -21,13 +23,17 @@ includes a `sensorId` of the sensor which published the message, a `dateTime` of
 ### Published Messages
 
 To see the published messages, you can locate the file `kafka-console-consumer.sh`, go to its folder and execute 
-`./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensors --from-beginning --max-messages 10`. In 
+`./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensors --from-beginning`. In 
 our example of running Kafka via the provided [`docker-compose.yml`](../infrastructure/docker-compose.yml), you have to 
 `exec` into the started Kafa container with `docker-compose exec kafka bash`. After starting a sensor simulation, you 
 can execute the following command:
 
 ```shell script
-./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic sensors --from-beginning --max-messages 10
+./bin/kafka-console-consumer.sh \
+    --bootstrap-server localhost:9092 \
+    --topic sensors \
+    --from-beginning \
+    --max-messages 10
 ```
 
 ## Run Multiple Sensors Simultaneously
@@ -42,7 +48,8 @@ system property can also be set during startup with Maven's `-D` flag. The appli
 development mode with:
 
 ```shell script
-./mvnw quarkus:dev -Dquarkus.http.port=<port>
+./mvnw quarkus:dev \
+    -Dquarkus.http.port=<port>
 ```
 
 ### Custom Sensor ID
@@ -52,7 +59,8 @@ property `sensor.id=<sensor-id>`. This is also possible during startup with Mave
 therefore be started in the development mode with:
 
 ```shell script
-./mvnw quarkus:dev -Dsensor.id=<sensor-id>
+./mvnw quarkus:dev \
+    -Dsensor.id=<sensor-id>
 ```
 
 ## Run Sensor in Production Mode
@@ -67,14 +75,18 @@ It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory. I
 equipped with properties via the `-D` flag.
 
 ```shell script
-java -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id> -jar target/quarkus-app/quarkus-run.jar
+java \
+    -Dquarkus.http.port=<port> \
+    -Dsensor.id=<sensor-id> \
+    -jar target/quarkus-app/quarkus-run.jar
 ```
 
 Be aware that the packaged application is not an _über-jar_ as the dependencies are copied into the 
 `target/quarkus-app/lib/` directory. If you want to build an _über-jar_, execute the following command:
 
 ```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+./mvnw package \
+    -Dquarkus.package.type=uber-jar
 ```
 
 The application is then runnable using `java -jar target/quarkus-app/quarkus-run.jar`. (do not forget port and sensor 
@@ -92,14 +104,17 @@ native executable. You can create a native executable using:
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
 ```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
+./mvnw package -Pnative \
+    -Dquarkus.native.container-build=true
 ```
 
 You can then execute your native executable with `./target/sensor-1.0-SNAPSHOT-runner` and also provide it properties 
 via the `-D` flag.
 
 ```shell script
-./target/sensor-1.0-SNAPSHOT-runner -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>
+./target/sensor-1.0-SNAPSHOT-runner \
+    -Dquarkus.http.port=<port> \
+    -Dsensor.id=<sensor-id>
 ```
 
 If you want to learn more about building native executables, please consult 

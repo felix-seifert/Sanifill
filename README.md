@@ -28,13 +28,16 @@ found in the section [Run](#run).
 * To simulate some physical sensors which publish their data to Kafka, start any desired number of sensors in the folder 
   [sensor](sensor) with 
   ```shell script
-  ./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsensor.id=<sensor-id>
+  ./mvnw quarkus:dev \
+      -Dquarkus.http.port=<port> \
+      -Dsensor.id=<sensor-id>
   ```
 * Further analytics can be performed on the sensor data. This often required the history of more or all the sensor data. 
   The service [database-storage](database-storage) consumes the Kafka messages to store them in a relational database. 
   Start the service by navigating to its folder and executing the command 
   ```shell script
-  ./mvnw quarkus:dev -Dquarkus.http.port=<port>
+  ./mvnw quarkus:dev \
+      -Dquarkus.http.port=<port>
   ```
 * To analyse the sensor data, the service [analyser](analyser) calculates a moving average of the gradients of the 
   sensor data. These averages are then used to get an expected depletion date. At startup, the services attempts to 
@@ -42,14 +45,18 @@ found in the section [Run](#run).
   service consume the channel`sensors` and produce new messages on the channel `sensors-sma`, navigate to the service's 
   folder and execute the command
   ```shell script
-  ./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsanifill.storage-service.port=<storage-port> -Danalyser.sma-values=<number-of-values-for-sma>
+  ./mvnw quarkus:dev \
+      -Dquarkus.http.port=<port> \
+      -Dsanifill.storage-service.port=<storage-port> \
+      -Danalyser.sma-values=<number-of-values-for-sma>
   ```
 * You can then use the Vaadin frontend to consume the sensor data from Kafka and display analytics performed on the 
   data. On startup, the frontend attempts to retrieve the latest sensor data from the storage service. It therefore has 
   to know the storage service's port via the property `sanifill.storage-service`. Just start the 
   [Sanifill frontend](frontend) by navigating to its folder and executing the command
   ```shell script
-  mvn spring-boot:run -Pproduction -Dsanifill.storage-service.port=8081
+  mvn spring-boot:run -Pproduction \
+      -Dsanifill.storage-service.port=<storage-port>
   ```
   Open `http://localhost:8080/` to see the frontend programme.
 

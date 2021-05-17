@@ -1,4 +1,4 @@
-# analyser
+# Analyser Service
 
 The Quarkus service `analyser` consumes messages from the channel `sensors`, performs some analytics on them and 
 publishes the results on another channel. Currently, the service calculates the gradient of the content which is 
@@ -10,7 +10,8 @@ To run the `analyser` in Quarkus development mode without the need to separate b
 plugin via the Maven wrapper.
 
 ```shell script
-./mvnw quarkus:dev -Dquarkus.http.port=<port>
+./mvnw quarkus:dev \
+    -Dquarkus.http.port=<port>
 ```
 
 ## Load Data From Storage on Startup
@@ -20,7 +21,9 @@ service `database-storage` (success or failure can be observed in the logs). To 
 port of the storage. You can provide the port via the `-D` flag at startup.
 
 ```shell script
-./mvnw quarkus:dev -Dquarkus.http.port=<port> -Dsanifill.storage-service.port=<storage-port>
+./mvnw quarkus:dev \
+    -Dquarkus.http.port=<port> \
+    -Dsanifill.storage-service.port=<storage-port>
 ```
 
 ## Simple Moving Average (SMA)
@@ -32,5 +35,6 @@ ones). Generally, the SMA calculation uses the last two gradients. If you want t
 or use Maven's `-D` flag. To start the service in development mode, use the following Maven command.
 
 ```shell script
-./mvnw quarkus:dev -Danalyser.sma-values=<number-of-values-for-sma>
+./mvnw quarkus:dev \
+    -Danalyser.sma-values=<number-of-values-for-sma>
 ```

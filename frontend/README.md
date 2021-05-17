@@ -17,7 +17,8 @@ storage service's port via the property `sanifill.storage-service`. You can just
 `-D` flag.
 
 ```shell script
-mvn spring-boot:run -Pproduction -Dsanifill.storage-service.port=8081
+mvn spring-boot:run -Pproduction \
+    -Dsanifill.storage-service.port=<storage-port>
 ```
 
 ## Project structure
