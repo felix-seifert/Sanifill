@@ -4,11 +4,26 @@ Sanifill is a system which allows analytics of the usage of liquid in sanitary l
 hand sanitiser containers. Sanifill does so by reading the filling of liquid containers through sensors which are then 
 published to a Kafka topic. From this topic, several consumers can read the sensor data and perform their analytics.
 
+The read data of the sensors contains two dimensions: the filling of a container and the time this filling was 
+registered. The filling on its own is used to show the current filling. Together with the time, a longer history can be 
+observed. The historical behaviour of the system then allows future forecasts. The frontend subscribes to the topic 
+with the sensor data directly to display the current filling. Another service uses the sensor data directly and 
+calculates a simple moving average of the filling gradient to forecast the depletion.
+
+To enable more sophisticated analytics in future implementations, a service listens to the sensor data and persists them 
+in a database.
+
+The idea of Sanifill is to equip huge sanitary facilities (e.g. at highway service stations) with Sanifill. The sensors 
+measure the content of soap dispensers and analytics can be performed on them. Planning for and execution of the needed 
+maintenance becomes easier and cheaper. The improved maintenance then results in happier customers. As hand sanitiser 
+containers became more present in times of COVID, Sanifill can also help to support the health protection.
+
 Sanifill uses sensors which are integrated in the existing environment and therefore, adapt to the user. The system's 
 user, a cleaner or someone else responsible for refilling the liquid containers, benefits from the information the 
 system provides while the end-user of the sanitary facilities does not directly realise the existence of Sanifill or the 
 system's sensors. As these sensors sense their environment, the filling of their monitored liquidity container, the 
-system is context-aware and, as opposed to sampling methods, listens to events.
+system is context-aware and, as opposed to sampling methods, listens to events. This event-driven architecture is 
+realised with asynchronous messaging via the message broker Apache Kafka.
 
 ## Architecture
 
@@ -32,9 +47,9 @@ found in the section [Run](#run).
       -Dquarkus.http.port=<port> \
       -Dsensor.id=<sensor-id>
   ```
-* Further analytics can be performed on the sensor data. This often required the history of more or all the sensor data. 
-  The service [database-storage](database-storage) consumes the Kafka messages to store them in a relational database. 
-  Start the service by navigating to its folder and executing the command 
+* Sophisticated analytics often requires the history of more or all the sensor data. The service 
+  [database-storage](database-storage) consumes the Kafka messages to store them in a relational database. Start the 
+  service by navigating to its folder and executing the command 
   ```shell script
   ./mvnw quarkus:dev \
       -Dquarkus.http.port=<port>
