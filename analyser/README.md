@@ -31,7 +31,7 @@ port of the storage. You can provide the port via the `-D` flag at startup.
 The service calculates a SMA of the gradients. The gradient assumes a linear function between two data points. These 
 gradients are then stored to calculate a moving average, i.e. an average of the last few gradients (ignoring the older 
 ones). Generally, the SMA calculation uses the last two gradients. If you want to change this, you can set the property 
-`analyser.sma-values`. You can either set this property in the ['applications.properties'](src/main/resources/application.properties) 
+`analyser.sma-values`. You can either set this property in the [applications.properties](src/main/resources/application.properties) 
 or use Maven's `-D` flag. To start the service in development mode, use the following Maven command.
 
 ```shell script

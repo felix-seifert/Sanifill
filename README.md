@@ -21,7 +21,7 @@ found in the section [Run](#run).
 
 * For the system to function, one have to start a message broker and other infrastructure which the system needs 
   (amongst others Kafka and database). This can be achieved by spinning up the Docker containers in 
-  [`docker-compose.yml`](infrastructure/docker-compose.yml) with a simple
+  [docker-compose.yml](infrastructure/docker-compose.yml) with a simple
   ```shell script
   docker-compose up
   ```
