@@ -20,62 +20,11 @@ package com.felixseifert.sanifill.storage.repository;
 import com.felixseifert.sanifill.storage.model.SensorData;
 import com.felixseifert.sanifill.storage.model.SensorDataIncoming;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-@ApplicationScoped
-public class SensorDataRepository {
+public interface SensorDataRepository {
 
-    @Inject
-    EntityManager entityManager;
+    SensorData addIncoming(SensorDataIncoming sensorDataIncoming);
 
-    public SensorData addIncoming(SensorDataIncoming sensorDataIncoming) {
-        SensorData sensorData = SensorData.constructFromSensorDataIncoming(sensorDataIncoming);
-        entityManager.persist(sensorData);
-        return sensorData;
-    }
-
-    public List<SensorData> findNLatestOfEachSensor(int n) {
-        return retrieveAllSensorIds()
-                .flatMap(sensorId -> retrieveNLatestSensorDataForSensorId(n, sensorId))
-                .collect(Collectors.toList());
-    }
-
-    public List<SensorData> findLatestOfEachSensor() {
-        return findNLatestOfEachSensor(1);
-    }
-
-    private Stream<SensorData> retrieveNLatestSensorDataForSensorId(int n, String sensorId) {
-        return entityManager
-                .createQuery(createQueryToRetrieveOrderedSensorDataForSensorId(sensorId))
-                .setMaxResults(n)
-                .getResultStream();
-    }
-
-    private CriteriaQuery<SensorData> createQueryToRetrieveOrderedSensorDataForSensorId(String sensorId) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<SensorData> cq = cb.createQuery(SensorData.class);
-        Root<SensorData> root = cq.from(SensorData.class);
-        return cq.where(cb.equal(root.get("sensorId"), sensorId)).orderBy(cb.desc(root.get("dateTime")));
-    }
-
-    private Stream<String> retrieveAllSensorIds() {
-        return entityManager
-                .createQuery(createQueryToRetrieveAllSensorIds())
-                .getResultStream();
-    }
-
-    private CriteriaQuery<String> createQueryToRetrieveAllSensorIds() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<String> cq = cb.createQuery(String.class);
-        Root<SensorData> root = cq.from(SensorData.class);
-        return cq.multiselect(root.get("sensorId")).groupBy(root.get("sensorId"));
-    }
+    List<SensorData> findNLatestOfEachSensor(int n);
 }
